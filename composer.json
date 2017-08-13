@@ -1,0 +1,28 @@
+{
+  "name": "dwnload/edd-software-license-manager",
+  "description": "A PHP class abstraction for managing WordPress plugin licenses and auto-updates that are sold on an Easy Digital Downloads store.",
+  "version": "1.0.0",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Austin Passy",
+      "email": "thefrosty@users.noreply.github.com",
+      "homepage": "https://austin.passy.co",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "composer/installers": "~1.0",
+    "thefrosty/wp-utilities": "^0.2.2",
+    "php": ">=7.0.4"
+  },
+  "require-dev": {
+    "10up/wp_mock": "dev-dev",
+    "wp-coding-standards/wpcs": "^0.9.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Dwnload\\EddSoftwareLicenseManager\\": "src"
+    }
+  }
+}
