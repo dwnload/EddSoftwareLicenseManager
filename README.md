@@ -8,7 +8,7 @@ To install this package, edit your `composer.json` file:
 ```js
 {
     "require": {
-        "dwnload/edd-software-license-manager": "^0.1"
+        "dwnload/edd-software-license-manager": "^1.0.0"
     }
 }
 ```
