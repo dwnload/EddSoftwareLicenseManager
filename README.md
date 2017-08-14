@@ -27,17 +27,17 @@ $args = [
     'api_url' => trailingslashit( https://plugingarden.dwnload.io ),
     'plugin_file' => __FILE__,
     'api_data' => [
-        'version' 	=> '1.0', // current version number
-        'license' 	=> $license_key, // license key (used get_option above to retrieve from DB)
+        'version' => (string) $version, // current version number
+        'license' => (string) $license_key, // license key (used get_option above to retrieve from DB)
         'item_name' => 'Super Cool Plugin', // name of this plugin (matching your EDD Download title)
-        'author' 	=> 'Austin Passy', // author of this plugin
-        'beta' => false,
+        'author' => 'Austin Passy', // author of this plugin
+        'beta' => $use_beta,
     ],
-    'name' => plugin_basename( __FILE__ )
-    'slug' => basename( __FILE__, '.php' )
-    'version' => '
+    'name' => plugin_basename( __FILE__ ),
+    'slug' => basename( __FILE__, '.php' ),
+    'version' => (string) $version,
     'wp_override' => false,
-    'beta' => false,
+    'beta' => (bool) $use_beta,
 ];
 
 if ( is_admin() ) {
