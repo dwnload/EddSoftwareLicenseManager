@@ -21,29 +21,33 @@ class PluginUpdater implements WpHooksInterface {
     /** @var  PluginData $plugin_data */
     private $plugin_data;
 
+    // @formatter:off
     /**
      * PluginUpdater constructor.
-     *
      * @param array $args {
-     *
-     * @type string $api_url        URL of your website where EDD lives, ie: trailingslashit( https://dwnload.io )
-     * @type string $plugin_file    Base file path of the root plugin file, ie: __FILE__
-     * @type array $api_data        Optional additional data to send with the API calls.
-     * @type string $license        License Key.
-     * @type string $name           plugin_basename( __FILE__ )
-     * @type string $slug           basename( __FILE__, '.php' )
-     * @type string $version        Current version
-     * @type bool $wp_override      Override WP? Defaults to false.
-     * @type bool $beta             Allow beta updates? Defaults to false.
+     *      @type string $api_url        URL of your website where EDD lives, ie: `trailingslashit( https://dwnload.io )`
+     *      @type string $plugin_file    Base file path of the root plugin file, ie: __FILE__
+     *      @type array $api_data        Additional data to send with the API calls.
+     *      {
+     *          @type string $version        Current version number
+     *          @type string $license        License key (ex. use get_option to retrieve from DB)
+     *          @type string $item_name      Name of the plugin (title) (matching your EDD Download title)
+     *          @type string $author         Author of the plugin
+     *          @type bool $beta
+     *      }
+     *      @type string $license        License Key.
+     *      @type string $name           plugin_basename( __FILE__ )
+     *      @type string $slug           basename( __FILE__, '.php' )
+     *      @type string $version        Current version
+     *      @type bool $wp_override      Override WP? Defaults to false.
+     *      @type bool $beta             Allow beta updates? Defaults to false.
      * }
      */
+    // @formatter:on
     public function __construct( array $args = [] ) {
         global $edd_plugin_data;
 
-        // Make sure $plugin_file is the first key in the array!
-        $args = [ 'plugin_file' => $args['plugin_file'] ] + $args;
-        $args = $args + [ 'license' => $args['api_data']['license'] ?? '' ];
-        $this->plugin_data = new PluginData( $args );
+        $this->plugin_data = new PluginData( $this->format_plugin_data( $args ) );
         $edd_plugin_data[ $this->plugin_data->getSlug() ] = $this->plugin_data->getApiData();
     }
 
@@ -69,31 +73,33 @@ class PluginUpdater implements WpHooksInterface {
      *
      * @uses api_request()
      *
-     * @param array $_transient_data Update array build by WordPress.
+     * @param mixed $value Update array build by WordPress.
      *
      * @return array Modified update array with custom plugin data.
      */
-    public function check_update( array $_transient_data ) {
+    public function check_update( $value ) {
         global $pagenow;
+
+        if ( is_multisite() && 'plugins.php' === $pagenow ) {
+            return $value;
+        }
+
+        $_transient_data = $value;
 
         if ( ! is_object( $_transient_data ) ) {
             $_transient_data = new \stdClass();
         }
 
-        if ( is_multisite() && 'plugins.php' === $pagenow ) {
-            return $_transient_data;
-        }
-
         if ( ! empty( $_transient_data->response ) &&
             ! empty( $_transient_data->response[ $this->plugin_data->getName() ] ) &&
-            $this->plugin_data->getWpOverride() === false
+            ! $this->plugin_data->getWpOverride()
         ) {
-            return $_transient_data;
+            return $value;
         }
 
         $version_info = $this->get_cached_version_info();
 
-        if ( false === $version_info ) {
+        if ( $version_info === false ) {
             $version_info = $this->api_request( 'plugin_latest_version', [
                 'slug' => $this->plugin_data->getSlug(),
                 'beta' => $this->plugin_data->getBeta(),
@@ -102,7 +108,7 @@ class PluginUpdater implements WpHooksInterface {
             $this->set_version_info_cache( $version_info );
         }
 
-        if ( false !== $version_info && is_object( $version_info ) && isset( $version_info->new_version ) ) {
+        if ( $version_info !== false && is_object( $version_info ) && isset( $version_info->new_version ) ) {
 
             if ( version_compare( $this->plugin_data->getVersion(), $version_info->new_version, '<' ) ) {
                 $_transient_data->response[ $this->plugin_data->getName() ] = $version_info;
@@ -119,23 +125,15 @@ class PluginUpdater implements WpHooksInterface {
      * show update notification row -- needed for Multisite subsites, because WP won't tell you
      * otherwise!
      *
-     * @param string $file
-     * @param array $plugin
+     * @param string $plugin_file Path to the plugin file, relative to the plugins directory.
+     * @param array  $plugin_data An array of plugin data.
      */
-    public function show_update_notification( $file, $plugin ) {
-        if ( is_network_admin() ) {
-            return;
-        }
-
-        if ( ! current_user_can( 'update_plugins' ) ) {
-            return;
-        }
-
-        if ( ! is_multisite() ) {
-            return;
-        }
-
-        if ( $this->plugin_data->getName() !== $file ) {
+    public function show_update_notification( string $plugin_file, array $plugin_data ) {
+        if ( is_network_admin() ||
+            ! current_user_can( 'update_plugins' ) ||
+            ! is_multisite() ||
+            $this->plugin_data->getName() !== $plugin_file
+        ) {
             return;
         }
 
@@ -177,18 +175,23 @@ class PluginUpdater implements WpHooksInterface {
         // Restore our filter
         add_filter( 'pre_set_site_transient_update_plugins', [ $this, 'check_update' ] );
 
-        if ( ! empty( $update_cache->response[ $this->plugin_data->getName() ] ) && version_compare( $this->plugin_data->getVersion(), $version_info->new_version, '<' ) ) {
-
+        if ( ! empty( $update_cache->response[ $this->plugin_data->getName() ] ) &&
+            version_compare( $this->plugin_data->getVersion(), $version_info->new_version, '<' )
+        ) {
             // build a plugin list row, with update notification
-            echo '<tr class="plugin-update-tr" id="' . $this->plugin_data->getSlug() . '-update" data-slug="' . $this->plugin_data->getSlug() . '" data-plugin="' . $this->plugin_data->getSlug() . '/' . $file . '">';
+            echo '<tr class="plugin-update-tr" id="' . $this->plugin_data->getSlug() . '-update" data-slug="' .
+                $this->plugin_data->getSlug() . '" data-plugin="' . $this->plugin_data->getSlug() . '/' . $plugin_file . '">';
             echo '<td colspan="3" class="plugin-update colspanchange">';
             echo '<div class="update-message notice inline notice-warning notice-alt">';
 
-            $changelog_link = self_admin_url( 'index.php?edd_sl_action=view_plugin_changelog&plugin=' . $this->plugin_data->getName() . '&slug=' . $this->plugin_data->getSlug() . '&TB_iframe=true&width=772&height=911' );
+            $changelog_link = self_admin_url(
+                'index.php?edd_sl_action=view_plugin_changelog&plugin=' . $this->plugin_data->getName() .
+                '&slug=' . $this->plugin_data->getSlug() . '&TB_iframe=true&width=772&height=911'
+            );
 
             if ( empty( $version_info->download_link ) ) {
                 printf(
-                    __( 'There is a new version of %1$s available. %2$sView version %3$s details%4$s.', 'easy-digital-downloads' ),
+                    __( 'There is a new version of %1$s available. %2$sView version %3$s details%4$s.', 'dwnload' ),
                     esc_html( $version_info->name ),
                     '<a target="_blank" class="thickbox" href="' . esc_url( $changelog_link ) . '">',
                     esc_html( $version_info->new_version ),
@@ -196,17 +199,25 @@ class PluginUpdater implements WpHooksInterface {
                 );
             } else {
                 printf(
-                    __( 'There is a new version of %1$s available. %2$sView version %3$s details%4$s or %5$supdate now%6$s.', 'easy-digital-downloads' ),
+                    __( 'There is a new version of %1$s available. %2$sView version %3$s details%4$s or %5$supdate now%6$s.', 'dwnload' ),
                     esc_html( $version_info->name ),
                     '<a target="_blank" class="thickbox" href="' . esc_url( $changelog_link ) . '">',
                     esc_html( $version_info->new_version ),
                     '</a>',
-                    '<a href="' . esc_url( wp_nonce_url( self_admin_url( 'update.php?action=upgrade-plugin&plugin=' ) . $this->plugin_data->getName(), 'upgrade-plugin_' . $this->plugin_data->getName() ) ) . '">',
+                    '<a href="' . esc_url( wp_nonce_url(
+                        self_admin_url( 'update.php?action=upgrade-plugin&plugin=' ) .
+                        $this->plugin_data->getName(), 'upgrade-plugin_' . $this->plugin_data->getName()
+                    ) ) . '">',
                     '</a>'
                 );
             }
 
-            do_action( "in_plugin_update_message-{$file}", $plugin, $version_info );
+            /**
+             *
+             * @param array $plugin_data An array of plugin data.
+             * @param \stdClass $version_info
+             */
+            do_action( "in_plugin_update_message-{$plugin_file}", $plugin_data, $version_info );
 
             echo '</div></td></tr>';
         }
@@ -317,12 +328,16 @@ class PluginUpdater implements WpHooksInterface {
             return;
         }
 
-        if ( empty( $_REQUEST['plugin'] ) ||  empty( $_REQUEST['slug'] ) ) {
+        if ( empty( $_REQUEST['plugin'] ) || empty( $_REQUEST['slug'] ) ) {
             return;
         }
 
         if ( ! current_user_can( 'update_plugins' ) ) {
-            wp_die( __( 'You do not have permission to install plugin updates', 'easy-digital-downloads' ), __( 'Error', 'easy-digital-downloads' ), [ 'response' => 403 ] );
+            wp_die(
+                esc_html__( 'You do not have permission to install plugin updates', 'dwnload' ),
+                esc_html__( 'Error', 'dwnload' ),
+                [ 'response' => \WP_Http::FORBIDDEN ]
+            );
         }
 
         $data = $edd_plugin_data[ $_REQUEST['slug'] ];
@@ -416,13 +431,13 @@ class PluginUpdater implements WpHooksInterface {
      * @uses wp_remote_post()
      * @uses is_wp_error()
      *
-     * @param string $_action The requested action.
-     * @param array $_data Parameters for the API action.
+     * @param string $action The requested action.
+     * @param array $args Parameters for the API action.
      *
      * @return false|object
      */
-    private function api_request( string $_action, array $_data ) {
-        $data = array_merge( $this->plugin_data->getApiData(), $_data );
+    private function api_request( string $action, array $args ) {
+        $data = array_merge( $this->plugin_data->getApiData(), $args );
 
         if ( $this->plugin_data->getSlug() !== $data['slug'] ) {
             return false;
@@ -433,7 +448,7 @@ class PluginUpdater implements WpHooksInterface {
         }
 
         $api_params = [
-            'edd_action' => $_action, // 'get_version',
+            'edd_action' => $action, // 'get_version',
             'license' => ! empty( $data['license'] ) ? $data['license'] : '',
             'item_name' => isset( $data['item_name'] ) ? $data['item_name'] : false,
             'item_id' => isset( $data['item_id'] ) ? $data['item_id'] : false,
@@ -481,5 +496,19 @@ class PluginUpdater implements WpHooksInterface {
      */
     private function verify_ssl(): bool {
         return (bool)apply_filters( 'edd_sl_api_request_verify_ssl', true, $this );
+    }
+
+    /**
+     * @param array $args
+     *
+     * @return array
+     */
+    private function format_plugin_data( array $args ): array {
+        // Make sure $plugin_file is the first key in the array!
+        $args = [ 'plugin_file' => $args['plugin_file'] ] + $args;
+
+        $license = isset( $args['license'] ) ? $args['license'] : $args['api_data']['license'] ?? '';
+
+        return $args + [ 'license' => $license ];
     }
 }
