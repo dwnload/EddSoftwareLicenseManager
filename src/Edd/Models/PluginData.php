@@ -1,6 +1,6 @@
 <?php
 
-namespace Dwnload\EddSoftwareLicenseManager\Edd;
+namespace Dwnload\EddSoftwareLicenseManager\Edd\Models;
 
 use TheFrosty\WP\Utils\Models\BaseModel;
 
