@@ -39,8 +39,18 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface 
         $this->plugin_data = new PluginData( $data );
     }
 
+    /**
+     * @param SettingField $field
+     */
     public function setSettingField( SettingField $field ) {
         $this->field = $field;
+    }
+
+    /**
+     * @return SettingField
+     */
+    public function getSettingField(): SettingField {
+        return $this->field;
     }
 
     public function addHooks() {
@@ -54,7 +64,7 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface 
     /**
      * Enqueue License only script
      */
-    function enqueue_scripts( $hook ) {
+    public function enqueue_scripts() {
         wp_enqueue_script(
             self::HANDLE,
             plugins_url( 'assets/js/licenses.js', __FILE__ ),
@@ -77,28 +87,7 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface 
      */
     public function licenseData( SettingSection $section ) {
         if ( $section->getId() === $this->field->getSectionId() ) {
-            if ( isset( $status ) && $status === 'valid' ) {
-                submit_button(
-                    $this->getStrings()['deactivate-license'],
-                    'button-primary',
-                    LicenseStatus::LICENSE_DEACTIVATE,
-                    false
-                );
-                echo '&nbsp;&nbsp;';
-                submit_button(
-                    $this->getStrings()['check-license'],
-                    'button-secondary',
-                    LicenseStatus::LICENSE_CHECK_LICENSE,
-                    false
-                );
-            } else {
-                submit_button(
-                    $this->getStrings()['activate-license'],
-                    'button-primary',
-                    LicenseStatus::LICENSE_ACTIVATE,
-                    false
-                );
-            }
+            include dirname( dirname( __DIR__ ) ) . '/views/license.php';
         }
     }
 
