@@ -13,12 +13,13 @@ use Dwnload\WpEmailDownload\EmailDownload;
  *
  * @package Dwnload\EddSoftwareLicenseManager\Edd
  */
-abstract class LicenceManager {
+abstract class AbstractLicenceManager {
 
     const ACTIVATE_LICENCE = 'activate_license';
     const CHECK_LICENCE = 'check_license';
     const DEACTIVATE_LICENCE = 'deactivate_license';
     const TRANSIENT_PREFIX = 'dwnload_edd_slm_';
+    const LICENSE_SETTING = 'dwnload_license_data';
 
     /** @var  string $api_url */
     private $api_url;
@@ -27,12 +28,12 @@ abstract class LicenceManager {
      * Activates the license key.
      *
      * @param string $license The incoming POST license key
-     * @param string $plugin_id
+     * @param string $plugin_slug
      * @param int $item_id
      *
      * @return bool
      */
-    protected function activateLicense( string $license, string $plugin_id, int $item_id ): bool {
+    protected function activateLicense( string $license, string $plugin_slug, int $item_id ): bool {
         if ( empty( $license ) ) {
             return false;
         }
@@ -48,12 +49,12 @@ abstract class LicenceManager {
         if ( $response->isValidResponse() &&
             strcasecmp( $response->getLicense(), LicenseStatus::LICENSE_ACTIVE ) === 0
         ) {
-            $key = $this->getTransientKey( $plugin_id . '_license_message' );
-            $option = get_option( 'edd-software-license-manager', [] );
-            $option[ $plugin_id ]['license'] = trim( $license );
-            $option[ $plugin_id ]['status'] = trim( $response->getLicense() );
+            $key = $this->getTransientKey( $plugin_slug . '_license_message' );
+            $option = get_option( self::LICENSE_SETTING, [] );
+            $option[ $plugin_slug ]['license'] = trim( $license );
+            $option[ $plugin_slug ]['status'] = trim( $response->getLicense() );
 
-            update_option( 'edd-software-license-manager', $option );
+            update_option( self::LICENSE_SETTING, $option );
 
             return delete_transient( $key );
         }
@@ -65,12 +66,12 @@ abstract class LicenceManager {
      * Deactivates the license key.
      *
      * @param string $license The incoming POST license key
-     * @param string $plugin_id
+     * @param string $plugin_slug
      * @param int $item_id
      *
      * @return bool
      */
-    protected function deactivateLicense( string $license, string $plugin_id, int $item_id ): bool {
+    protected function deactivateLicense( string $license, string $plugin_slug, int $item_id ): bool {
         $api_params = [
             'edd_action' => self::DEACTIVATE_LICENCE,
             'license' => $license,
@@ -82,12 +83,12 @@ abstract class LicenceManager {
         if ( $response->isValidResponse() &&
             strcasecmp( $response->getLicense(), LicenseStatus::LICENSE_DEACTIVATED ) === 0
         ) {
-            $key = $this->getTransientKey( $plugin_id . '_license_message' );
-            $option = get_option( 'edd-software-license-manager', [] );
-            $option[ $plugin_id ]['license'] = trim( $license );
-            $option[ $plugin_id ]['status'] = '';
+            $key = $this->getTransientKey( $plugin_slug . '_license_message' );
+            $option = get_option( self::LICENSE_SETTING, [] );
+            $option[ $plugin_slug ]['license'] = trim( $license );
+            $option[ $plugin_slug ]['status'] = '';
 
-            update_option( 'edd-software-license-manager', $option );
+            update_option( self::LICENSE_SETTING, $option );
 
             return delete_transient( $key );
         }
@@ -154,19 +155,51 @@ abstract class LicenceManager {
             $message = $this->getStrings()['license-status-unknown'];
         }
 
-        $option = get_option( 'edd-software-license-manager', [] );
+        $option = get_option( self::LICENSE_SETTING, [] );
         $status = isset( $option[ $plugin_args['id'] ]['status'] ) ? $option[ $plugin_args['id'] ]['status'] : '';
         $option[ $plugin_args['id'] ]['status'] = $response->getLicense();
         $key = $this->getTransientKey( $plugin_args['id'] . '_license_message' );
 
         if ( $update_option ) {
             if ( ! empty( $status ) && $status != $option[ $plugin_args['id'] ]['status'] ) {
-                update_option( 'edd-software-license-manager', $option );
+                update_option( self::LICENSE_SETTING, $option );
                 delete_transient( $key );
             }
         }
 
         return $message;
+    }
+
+    /**
+     * Get an array of translation strings.
+     *
+     * @return array
+     */
+    protected function getStrings(): array {
+        return [
+            'plugin-license' => __( 'Plugin License', 'edd-software-license-manager' ),
+            'enter-key' => __( 'Enter your plugin license key.', 'edd-software-license-manager' ),
+            'license-key' => __( 'License Key', 'edd-software-license-manager' ),
+            'license-action' => __( 'License Action', 'edd-software-license-manager' ),
+            'deactivate-license' => __( 'Deactivate License', 'edd-software-license-manager' ),
+            'activate-license' => __( 'Activate License', 'edd-software-license-manager' ),
+            'check-license' => __( 'Check License Status', 'edd-software-license-manager' ),
+            'status-unknown' => __( 'License status is unknown.', 'edd-software-license-manager' ),
+            'renew' => __( 'Renew?', 'edd-software-license-manager' ),
+            'unlimited' => __( 'unlimited', 'edd-software-license-manager' ),
+            'license-key-is-active' => __( 'License key is active.', 'edd-software-license-manager' ),
+            'expires%s' => __( 'Expires %s.', 'edd-software-license-manager' ),
+            '%1$s/%2$-sites' => __( 'You have %1$s / %2$s sites activated.', 'edd-software-license-manager' ),
+            'license-key-expired-%s' => __( 'License key expired %s.', 'edd-software-license-manager' ),
+            'license-key-expired' => __( 'License key has expired.', 'edd-software-license-manager' ),
+            'license-keys-do-not-match' => __( 'License keys do not match.', 'edd-software-license-manager' ),
+            'license-is-inactive' => __( 'License is inactive.', 'edd-software-license-manager' ),
+            'license-key-is-disabled' => __( 'License key is disabled.', 'edd-software-license-manager' ),
+            'site-is-inactive' => __( 'Site is inactive.', 'edd-software-license-manager' ),
+            'license-status-unknown' => __( 'License status is unknown.', 'edd-software-license-manager' ),
+            'update-notice' => __( "Updating this plugin will lose any customizations you have made. 'Cancel' to stop, 'OK' to update.", 'edd-software-license-manager' ),
+            'update-available' => __( '<strong>%1$s %2$s</strong> is available. <a href="%3$s" class="thickbox" title="%4s">Check out what\'s new</a> or <a href="%5$s"%6$s>update now</a>.', 'edd-software-license-manager' ),
+        ];
     }
 
     /**
@@ -217,7 +250,7 @@ abstract class LicenceManager {
             return [];
         }
 
-        return json_decode( wp_remote_retrieve_body( $response ) );
+        return json_decode( wp_remote_retrieve_body( $response ), true );
     }
 
     /**
@@ -259,37 +292,5 @@ abstract class LicenceManager {
         $prefix = self::TRANSIENT_PREFIX;
 
         return $prefix . substr( md5( $input ), 0, 45 - strlen( $prefix ) );
-    }
-
-    /**
-     * Get an array of translation strings.
-     *
-     * @return array
-     */
-    private function getStrings(): array {
-        return [
-            'plugin-license' => __( 'Plugin License', 'edd-software-license-manager' ),
-            'enter-key' => __( 'Enter your plugin license key.', 'edd-software-license-manager' ),
-            'license-key' => __( 'License Key', 'edd-software-license-manager' ),
-            'license-action' => __( 'License Action', 'edd-software-license-manager' ),
-            'deactivate-license' => __( 'Deactivate License', 'edd-software-license-manager' ),
-            'activate-license' => __( 'Activate License', 'edd-software-license-manager' ),
-            'check-license' => __( 'Check License Status', 'edd-software-license-manager' ),
-            'status-unknown' => __( 'License status is unknown.', 'edd-software-license-manager' ),
-            'renew' => __( 'Renew?', 'edd-software-license-manager' ),
-            'unlimited' => __( 'unlimited', 'edd-software-license-manager' ),
-            'license-key-is-active' => __( 'License key is active.', 'edd-software-license-manager' ),
-            'expires%s' => __( 'Expires %s.', 'edd-software-license-manager' ),
-            '%1$s/%2$-sites' => __( 'You have %1$s / %2$s sites activated.', 'edd-software-license-manager' ),
-            'license-key-expired-%s' => __( 'License key expired %s.', 'edd-software-license-manager' ),
-            'license-key-expired' => __( 'License key has expired.', 'edd-software-license-manager' ),
-            'license-keys-do-not-match' => __( 'License keys do not match.', 'edd-software-license-manager' ),
-            'license-is-inactive' => __( 'License is inactive.', 'edd-software-license-manager' ),
-            'license-key-is-disabled' => __( 'License key is disabled.', 'edd-software-license-manager' ),
-            'site-is-inactive' => __( 'Site is inactive.', 'edd-software-license-manager' ),
-            'license-status-unknown' => __( 'License status is unknown.', 'edd-software-license-manager' ),
-            'update-notice' => __( "Updating this plugin will lose any customizations you have made. 'Cancel' to stop, 'OK' to update.", 'edd-software-license-manager' ),
-            'update-available' => __( '<strong>%1$s %2$s</strong> is available. <a href="%3$s" class="thickbox" title="%4s">Check out what\'s new</a> or <a href="%5$s"%6$s>update now</a>.', 'edd-software-license-manager' ),
-        ];
     }
 }
