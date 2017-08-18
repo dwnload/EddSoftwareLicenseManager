@@ -20,6 +20,9 @@ class PluginData extends BaseModel {
     /** @var bool $beta */
     private $beta = false;
 
+    /** @var int $item_id */
+    private $item_id;
+
     /** @var string $license */
     private $license;
 
@@ -81,6 +84,20 @@ class PluginData extends BaseModel {
      */
     public function getBeta(): bool {
         return $this->beta;
+    }
+
+    /**
+     * @param int $item_id
+     */
+    public function setItemId( int $item_id ) {
+        $this->item_id = $item_id;
+    }
+
+    /**
+     * @return int
+     */
+    public function getItemId(): int {
+        return $this->item_id;
     }
 
     /**
