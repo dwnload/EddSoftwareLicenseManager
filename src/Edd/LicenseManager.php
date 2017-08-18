@@ -3,6 +3,7 @@
 namespace Dwnload\EddSoftwareLicenseManager\Edd;
 
 use Dwnload\EddSoftwareLicenseManager\Edd\Models\LicenseStatus;
+use Dwnload\EddSoftwareLicenseManager\Edd\Models\PluginData;
 use Dwnload\WpSettingsApi\Api\SettingField;
 use Dwnload\WpSettingsApi\Api\SettingSection;
 use Dwnload\WpSettingsApi\App;

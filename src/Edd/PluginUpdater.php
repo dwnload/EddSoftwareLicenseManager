@@ -9,6 +9,7 @@
 
 namespace Dwnload\EddSoftwareLicenseManager\Edd;
 
+use Dwnload\EddSoftwareLicenseManager\Edd\Models\PluginData;
 use TheFrosty\WP\Utils\WpHooksInterface;
 
 /**
