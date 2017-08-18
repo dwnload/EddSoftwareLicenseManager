@@ -12,12 +12,15 @@ use TheFrosty\WP\Utils\Models\BaseModel;
 abstract class LicenseStatus extends BaseModel {
 
     const LICENSE_ACTIVE = 'active';
+    const LICENSE_ACTIVATE = 'activate';
     const LICENSE_DISABLED = 'disabled';
+    const LICENSE_DEACTIVATE = 'deactivate';
     const LICENSE_DEACTIVATED = 'deactivated';
     const LICENSE_EXPIRED = 'expired';
     const LICENSE_FAILED = 'inactive';
     const LICENSE_INACTIVE = 'inactive';
     const LICENSE_INVALID = 'invalid';
+    const LICENSE_CHECK_LICENSE = 'check_license';
     const LICENSE_SITE_INACTIVE = 'site_inactive';
 
     /** @var  string $license */
