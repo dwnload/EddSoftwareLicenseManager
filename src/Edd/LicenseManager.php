@@ -67,7 +67,7 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface 
     public function enqueue_scripts() {
         wp_enqueue_script(
             self::HANDLE,
-            plugins_url( 'assets/js/licenses.js', __FILE__ ),
+            plugins_url( '../assets/js/licenses.js', __FILE__ ),
             [ 'jquery' ],
             $this->app->getVersion(),
             true
