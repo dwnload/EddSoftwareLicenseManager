@@ -6,6 +6,7 @@ use Dwnload\EddSoftwareLicenseManager\Edd\Models\ActivateLicense;
 use Dwnload\EddSoftwareLicenseManager\Edd\Models\CheckLicense;
 use Dwnload\EddSoftwareLicenseManager\Edd\Models\DeactivateLicense;
 use Dwnload\EddSoftwareLicenseManager\Edd\Models\LicenseStatus;
+use Dwnload\EddSoftwareLicenseManager\Edd\Models\PluginData;
 use Dwnload\WpEmailDownload\EmailDownload;
 
 /**
@@ -100,20 +101,20 @@ abstract class AbstractLicenceManager {
      * Checks if license is valid and gets expire date.
      *
      * @param string $license The incoming POST license key
-     * @param array $plugin_args
+     * @param PluginData $plugin_data
      * @param bool $update_option
      *
      * @return string $message License status message.
      */
-    protected function checkLicense( string $license = null, array $plugin_args = [], bool $update_option = false ): string {
+    protected function checkLicense( string $license = null, PluginData $plugin_data, bool $update_option = false ): string {
         if ( empty( $license ) ) {
-            return false;
+            return $this->getStrings()['enter-key'];
         }
 
         $api_params = [
             'edd_action' => self::CHECK_LICENCE,
             'license' => $license,
-            'item_id' => $plugin_args['item_id'],
+            'item_id' => $plugin_data->getItemId(),
         ];
 
         $response = $this->getCheckLicense( $api_params );
@@ -124,7 +125,7 @@ abstract class AbstractLicenceManager {
         }
 
         $expires = date_i18n( get_option( 'date_format' ), strtotime( $response->getExpires() ) );
-        $renew_link = '<a href="' . esc_url( $this->getRenewalUrl( $license, $plugin_args['download_id'] ) ) . '" target="_blank">' . $this->getStrings()['renew'] . '</a>';
+        $renew_link = '<a href="' . esc_url( $this->getRenewalUrl( $license, $plugin_data->getItemId() ) ) . '" target="_blank">' . $this->getStrings()['renew'] . '</a>';
 
 
         // Unlimited ??
@@ -156,12 +157,12 @@ abstract class AbstractLicenceManager {
         }
 
         $option = get_option( self::LICENSE_SETTING, [] );
-        $status = isset( $option[ $plugin_args['id'] ]['status'] ) ? $option[ $plugin_args['id'] ]['status'] : '';
-        $option[ $plugin_args['id'] ]['status'] = $response->getLicense();
-        $key = $this->getTransientKey( $plugin_args['id'] . '_license_message' );
+        $status = isset( $option[$plugin_data->getItemId() ]['status'] ) ? $option[ $plugin_data->getItemId() ]['status'] : '';
+        $option[ $plugin_data->getItemId() ]['status'] = $response->getLicense();
+        $key = $this->getTransientKey( $plugin_data->getItemId() . '_license_message' );
 
         if ( $update_option ) {
-            if ( ! empty( $status ) && $status != $option[ $plugin_args['id'] ]['status'] ) {
+            if ( ! empty( $status ) && $status != $option[ $plugin_data->getItemId() ]['status'] ) {
                 update_option( self::LICENSE_SETTING, $option );
                 delete_transient( $key );
             }
