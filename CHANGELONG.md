@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.2.0 - 2017-11-06
+### Updated
+- Changed methods in PluginUpdater from snake case to camel case.
+- Fixed incorrect variable variable calling plugin_data in PluginUpdater.
+
 ## 1.1.0 - 2017-08-17
 ### Updated
 - Moved PluginData into the Models directory.

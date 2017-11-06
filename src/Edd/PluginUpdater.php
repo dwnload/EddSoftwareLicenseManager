@@ -25,6 +25,7 @@ class PluginUpdater implements WpHooksInterface {
     // @formatter:off
     /**
      * PluginUpdater constructor.
+     *
      * @param array $args {
      *      @type string $api_url        URL of your website where EDD lives, ie: `trailingslashit( https://dwnload.io )`
      *      @type string $plugin_file    Base file path of the root plugin file, ie: __FILE__
@@ -48,7 +49,7 @@ class PluginUpdater implements WpHooksInterface {
     public function __construct( array $args = [] ) {
         global $edd_plugin_data;
 
-        $this->plugin_data = new PluginData( $this->format_plugin_data( $args ) );
+        $this->plugin_data = new PluginData( $this->formatPluginData( $args ) );
         $edd_plugin_data[ $this->plugin_data->getSlug() ] = $this->plugin_data->getApiData();
     }
 
@@ -57,11 +58,11 @@ class PluginUpdater implements WpHooksInterface {
      */
     public function addHooks() {
         $name = $this->plugin_data->getName();
-        add_filter( 'pre_set_site_transient_update_plugins', [ $this, 'check_update' ] );
-        add_filter( 'plugins_api', [ $this, 'plugins_api_filter' ], 10, 3 );
+        add_filter( 'pre_set_site_transient_update_plugins', [ $this, 'checkUpdate' ] );
+        add_filter( 'plugins_api', [ $this, 'pluginsApiFilter' ], 10, 3 );
         remove_action( 'after_plugin_row_' . $name, 'wp_plugin_update_row', 10 );
-        add_action( 'after_plugin_row_' . $name, [ $this, 'show_update_notification' ], 10, 2 );
-        add_action( 'admin_init', [ $this, 'show_changelog' ] );
+        add_action( 'after_plugin_row_' . $name, [ $this, 'showUpdateNotification' ], 10, 2 );
+        add_action( 'admin_init', [ $this, 'showChangelog' ] );
     }
 
     /**
@@ -72,13 +73,13 @@ class PluginUpdater implements WpHooksInterface {
      * It is reassembled from parts of the native WordPress plugin update code.
      * See wp-includes/update.php line 121 for the original wp_update_plugins() function.
      *
-     * @uses api_request()
+     * @uses getApiRequest()
      *
      * @param mixed $value Update array build by WordPress.
      *
      * @return array Modified update array with custom plugin data.
      */
-    public function check_update( $value ) {
+    public function checkUpdate( $value ) {
         global $pagenow;
 
         if ( is_multisite() && 'plugins.php' === $pagenow ) {
@@ -98,15 +99,17 @@ class PluginUpdater implements WpHooksInterface {
             return $value;
         }
 
-        $version_info = $this->get_cached_version_info();
+        $version_info = $this->getCachedVersionInfo();
 
         if ( $version_info === false ) {
-            $version_info = $this->api_request( 'plugin_latest_version', [
-                'slug' => $this->plugin_data->getSlug(),
-                'beta' => $this->plugin_data->getBeta(),
-            ] );
+            $version_info = $this->getApiRequest( 'plugin_latest_version',
+                [
+                    'slug' => $this->plugin_data->getSlug(),
+                    'beta' => $this->plugin_data->getBeta(),
+                ]
+            );
 
-            $this->set_version_info_cache( $version_info );
+            $this->setVersionInfoCache( $version_info );
         }
 
         if ( $version_info !== false && is_object( $version_info ) && isset( $version_info->new_version ) ) {
@@ -127,9 +130,9 @@ class PluginUpdater implements WpHooksInterface {
      * otherwise!
      *
      * @param string $plugin_file Path to the plugin file, relative to the plugins directory.
-     * @param array  $plugin_data An array of plugin data.
+     * @param array $plugin_data An array of plugin data.
      */
-    public function show_update_notification( string $plugin_file, array $plugin_data ) {
+    public function showUpdateNotification( string $plugin_file, array $plugin_data ) {
         if ( is_network_admin() ||
             ! current_user_can( 'update_plugins' ) ||
             ! is_multisite() ||
@@ -139,22 +142,22 @@ class PluginUpdater implements WpHooksInterface {
         }
 
         // Remove our filter on the site transient
-        remove_filter( 'pre_set_site_transient_update_plugins', [ $this, 'check_update' ], 10 );
+        remove_filter( 'pre_set_site_transient_update_plugins', [ $this, 'checkUpdate' ], 10 );
 
         $update_cache = get_site_transient( 'update_plugins' );
         $update_cache = is_object( $update_cache ) ? $update_cache : new \stdClass();
 
         if ( empty( $update_cache->response ) || empty( $update_cache->response[ $this->plugin_data->getName() ] ) ) {
 
-            $version_info = $this->get_cached_version_info();
+            $version_info = $this->getCachedVersionInfo();
 
             if ( $version_info === false ) {
-                $version_info = $this->api_request( 'plugin_latest_version', [
+                $version_info = $this->getApiRequest( 'plugin_latest_version', [
                     'slug' => $this->plugin_data->getSlug(),
                     'beta' => $this->plugin_data->getBeta(),
                 ] );
 
-                $this->set_version_info_cache( $version_info );
+                $this->setVersionInfoCache( $version_info );
             }
 
             if ( ! is_object( $version_info ) ) {
@@ -174,7 +177,7 @@ class PluginUpdater implements WpHooksInterface {
         }
 
         // Restore our filter
-        add_filter( 'pre_set_site_transient_update_plugins', [ $this, 'check_update' ] );
+        add_filter( 'pre_set_site_transient_update_plugins', [ $this, 'checkUpdate' ] );
 
         if ( ! empty( $update_cache->response[ $this->plugin_data->getName() ] ) &&
             version_compare( $this->plugin_data->getVersion(), $version_info->new_version, '<' )
@@ -227,7 +230,7 @@ class PluginUpdater implements WpHooksInterface {
     /**
      * Updates information on the "View version x.x details" page with custom data.
      *
-     * @uses api_request()
+     * @uses getApiRequest()
      *
      * @param mixed $_data
      * @param string $_action
@@ -235,7 +238,7 @@ class PluginUpdater implements WpHooksInterface {
      *
      * @return object $_data
      */
-    public function plugins_api_filter( $_data, $_action = '', $_args = null ) {
+    public function pluginsApiFilter( $_data, $_action = '', $_args = null ) {
         if ( $_action !== 'plugin_information' ) {
             return $_data;
         }
@@ -263,15 +266,15 @@ class PluginUpdater implements WpHooksInterface {
             );
 
         // Get the transient where we store the api request for this plugin for 24 hours
-        $edd_api_request_transient = $this->get_cached_version_info( $cache_key );
+        $edd_api_request_transient = $this->getCachedVersionInfo( $cache_key );
 
         // If we have no transient-saved value, run the API, set a fresh transient with the API value, and return that value too right now.
         if ( empty( $edd_api_request_transient ) ) {
 
-            $api_response = $this->api_request( 'plugin_information', $to_send );
+            $api_response = $this->getApiRequest( 'plugin_information', $to_send );
 
             // Expires in 3 hours
-            $this->set_version_info_cache( $api_response, $cache_key );
+            $this->setVersionInfoCache( $api_response, $cache_key );
 
             if ( false !== $api_response ) {
                 $_data = $api_response;
@@ -311,9 +314,9 @@ class PluginUpdater implements WpHooksInterface {
      *
      * @return array
      */
-    public function http_request_args( $args, $url ) {
+    public function getModifiedHttpRequestArgs( $args, $url ) {
         if ( strpos( $url, 'https://' ) !== false && strpos( $url, 'edd_action=package_download' ) ) {
-            $args['sslverify'] = $this->verify_ssl();
+            $args['sslverify'] = $this->sslVerify();
         }
 
         return $args;
@@ -322,7 +325,7 @@ class PluginUpdater implements WpHooksInterface {
     /**
      * Helper function to show the changelog.
      */
-    public function show_changelog() {
+    public function showChangelog() {
         global $edd_plugin_data;
 
         if ( empty( $_REQUEST['edd_sl_action'] ) || $_REQUEST['edd_sl_action'] !== 'view_plugin_changelog' ) {
@@ -344,7 +347,7 @@ class PluginUpdater implements WpHooksInterface {
         $data = $edd_plugin_data[ $_REQUEST['slug'] ];
         $beta = ! empty( $data['beta'] ) ? true : false;
         $cache_key = md5( 'edd_plugin_' . sanitize_key( $_REQUEST['plugin'] ) . '_' . $beta . '_version_info' );
-        $version_info = $this->get_cached_version_info( $cache_key );
+        $version_info = $this->getCachedVersionInfo( $cache_key );
 
         if ( $version_info === false ) {
             $api_params = [
@@ -359,7 +362,7 @@ class PluginUpdater implements WpHooksInterface {
 
             $request = wp_remote_post( esc_url_raw( $this->plugin_data->getApiUrl() ), [
                 'timeout' => 15,
-                'sslverify' => $this->verify_ssl(),
+                'sslverify' => $this->sslVerify(),
                 'body' => $api_params,
             ] );
 
@@ -379,7 +382,7 @@ class PluginUpdater implements WpHooksInterface {
                 }
             }
 
-            $this->set_version_info_cache( $version_info, $cache_key );
+            $this->setVersionInfoCache( $version_info, $cache_key );
         }
 
         if ( ! empty( $version_info ) && isset( $version_info->sections['changelog'] ) ) {
@@ -394,7 +397,7 @@ class PluginUpdater implements WpHooksInterface {
      *
      * @return array|bool|mixed|object
      */
-    protected function get_cached_version_info( string $cache_key = '' ) {
+    protected function getCachedVersionInfo( string $cache_key = '' ) {
         if ( empty( $cache_key ) ) {
             $cache_key = $this->plugin_data->getCacheKey();
         }
@@ -412,7 +415,7 @@ class PluginUpdater implements WpHooksInterface {
      * @param string $value
      * @param string $cache_key
      */
-    protected function set_version_info_cache( string $value = '', string $cache_key = '' ) {
+    protected function setVersionInfoCache( string $value = '', string $cache_key = '' ) {
         if ( empty( $cache_key ) ) {
             $cache_key = $this->plugin_data->getCacheKey();
         }
@@ -437,14 +440,14 @@ class PluginUpdater implements WpHooksInterface {
      *
      * @return false|object
      */
-    private function api_request( string $action, array $args ) {
+    private function getApiRequest( string $action, array $args ) {
         $data = array_merge( $this->plugin_data->getApiData(), $args );
 
         if ( $this->plugin_data->getSlug() !== $data['slug'] ) {
             return false;
         }
 
-        if ( $this->$this->plugin_data->getApiUrl() === trailingslashit( home_url() ) ) {
+        if ( $this->plugin_data->getApiUrl() === trailingslashit( home_url() ) ) {
             return false; // Don't allow a plugin to ping itself
         }
 
@@ -462,7 +465,7 @@ class PluginUpdater implements WpHooksInterface {
 
         $request = wp_remote_post( esc_url_raw( $this->plugin_data->getApiUrl() ), [
             'timeout' => 15,
-            'sslverify' => $this->verify_ssl(),
+            'sslverify' => $this->sslVerify(),
             'body' => $api_params,
         ] );
 
@@ -492,11 +495,10 @@ class PluginUpdater implements WpHooksInterface {
     /**
      * Returns if the SSL of the store should be verified.
      *
-     * @since  1.6.13
      * @return bool
      */
-    private function verify_ssl(): bool {
-        return (bool)apply_filters( 'edd_sl_api_request_verify_ssl', true, $this );
+    private function sslVerify(): bool {
+        return (bool) apply_filters( 'edd_sl_api_request_verify_ssl', true, $this );
     }
 
     /**
@@ -504,7 +506,7 @@ class PluginUpdater implements WpHooksInterface {
      *
      * @return array
      */
-    private function format_plugin_data( array $args ): array {
+    private function formatPluginData( array $args ): array {
         // Make sure $plugin_file is the first key in the array!
         $args = [ 'plugin_file' => $args['plugin_file'] ] + $args;
 
