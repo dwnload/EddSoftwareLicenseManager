@@ -2,6 +2,7 @@
 /**
  * Allows plugins to use their own update API.
  *
+ * @forked from:
  * @author Easy Digital Downloads
  * @link https://github.com/easydigitaldownloads/EDD-License-handler/blob/master/EDD_SL_Plugin_Updater.php
  * @version 1.6.14
