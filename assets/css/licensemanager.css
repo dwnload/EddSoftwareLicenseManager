@@ -1,0 +1,26 @@
+h2 span.license-status {
+    background-color: whitesmoke;
+    border: 1px solid;
+    font-size: 90%;
+    padding: 3px 4px;
+    border-radius: 2px;
+}
+
+h2 span.license-status.active {
+    background-color: #f6fef9;
+    border-color: #23d160;
+    color: #0e301a;
+}
+
+h2 span.license-status.inactive {
+    background-color: #fffdf5;
+    border-color: #ffdd57;
+    color: #3b3108;
+}
+
+h2 span.license-status.expired,
+h2 span.license-status.invalid {
+    background-color: #fff5f7;
+    border-color: #ff3860;
+    color: #cd0930;
+}
