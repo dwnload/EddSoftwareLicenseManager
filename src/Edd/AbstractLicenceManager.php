@@ -157,7 +157,7 @@ abstract class AbstractLicenceManager {
         }
 
         $option = get_option( self::LICENSE_SETTING, [] );
-        $status = isset( $option[$plugin_data->getItemId() ]['status'] ) ? $option[ $plugin_data->getItemId() ]['status'] : '';
+        $status = isset( $option[ $plugin_data->getItemId() ]['status'] ) ? $option[ $plugin_data->getItemId() ]['status'] : '';
         $option[ $plugin_data->getItemId() ]['status'] = $response->getLicense();
         $key = $this->getTransientKey( $plugin_data->getItemId() . '_license_message' );
 
@@ -201,6 +201,22 @@ abstract class AbstractLicenceManager {
             'update-notice' => __( "Updating this plugin will lose any customizations you have made. 'Cancel' to stop, 'OK' to update.", 'edd-software-license-manager' ),
             'update-available' => __( '<strong>%1$s %2$s</strong> is available. <a href="%3$s" class="thickbox" title="%4s">Check out what\'s new</a> or <a href="%5$s"%6$s>update now</a>.', 'edd-software-license-manager' ),
         ];
+    }
+
+    /**
+     * @param string $value
+     * @param string $class
+     * @param string $name
+     * @param string $status
+     */
+    protected function getSubmitButton( string $value, string $class, string $name, string $status ) {
+        printf(
+            '<input name="%3$s" id="EddSoftwareLicenseManagerButton" class="button %2$s" value="%1$s" data-status="%4$s" type="button">',
+            $value,
+            $class,
+            $name,
+            $status
+        );
     }
 
     /**
