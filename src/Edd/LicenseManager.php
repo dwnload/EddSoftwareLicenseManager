@@ -98,8 +98,8 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface 
             wp_send_json_error();
         }
 
-        $license_key = esc_html( $_POST[ $this->field->getSectionId() ][ $this->field->getName() ] );
-        $plugin_action = $_POST['plugin_action'];
+        $license_key = esc_html( wp_unslash( $_POST[ $this->field->getSectionId() ][ $this->field->getName() ] ) );
+        $plugin_action = sanitize_text_field( wp_unslash( $_POST['plugin_action'] ) );
 
         if ( $plugin_action === LicenseStatus::LICENSE_ACTIVATE ) {
             if ( $this->activateLicense( $license_key, $this->plugin_data->getSlug(), $this->plugin_data->getItemId() ) ) {
@@ -116,7 +116,7 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface 
         }
 
         if ( $plugin_action === LicenseStatus::LICENSE_CHECK_LICENSE ) {
-            $message = $this->checkLicense( $license_key, $plugin, $update_option = true );
+            $message = $this->checkLicense( $license_key, $this->plugin_data, $update_option = true );
             wp_send_json_success( $message );
         }
     }
