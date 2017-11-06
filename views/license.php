@@ -19,7 +19,7 @@ if ( empty( $license_key ) ) {
 
 printf( '<h2>License Status: %s</h2>', $license_data['status'] ?? LicenseStatus::LICENSE_INACTIVE );
 
-if ( ! empty( $license_data ) && $license_data['status'] === LicenseStatus::LICENSE_VALID ) {
+if ( ! empty( $license_data ) && $license_data['status'] === LicenseStatus::LICENSE_ACTIVE ) {
     submit_button(
         $this->getStrings()['deactivate-license'],
         'button-primary',
