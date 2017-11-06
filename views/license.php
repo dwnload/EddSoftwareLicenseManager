@@ -11,33 +11,35 @@ if ( ! ( $this instanceof LicenseManager ) ) {
 $field = $this->getSettingField();
 $license_key = Options::getOption( $field->getName(), $field->getSectionId() );
 $license_data = get_option( LicenseManager::LICENSE_SETTING, [] );
+$license_status = $license_data['status'] ?? LicenseStatus::LICENSE_INACTIVE;
 
 if ( empty( $license_key ) ) {
     echo 'Please save your license key.';
+
     return;
 }
 
-printf( '<h2>License Status: %s</h2>', $license_data['status'] ?? LicenseStatus::LICENSE_INACTIVE );
+printf('<h2>License Status: <span class="license-status %1$s">%1$s</span></h2>', $license_status );
 
 if ( ! empty( $license_data ) && $license_data['status'] === LicenseStatus::LICENSE_ACTIVE ) {
-    submit_button(
+    $this->getSubmitButton(
         $this->getStrings()['deactivate-license'],
         'button-primary',
         LicenseStatus::LICENSE_DEACTIVATE,
-        false
+        $license_status
     );
     echo '&nbsp;&nbsp;';
-    submit_button(
+    $this->getSubmitButton(
         $this->getStrings()['check-license'],
         'button-secondary',
         LicenseStatus::LICENSE_CHECK_LICENSE,
-        false
+        $license_status
     );
 } else {
-    submit_button(
+    $this->getSubmitButton(
         $this->getStrings()['activate-license'],
         'button-primary',
         LicenseStatus::LICENSE_ACTIVATE,
-        false
+        $license_status
     );
 }
