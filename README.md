@@ -8,7 +8,7 @@ To install this package, edit your `composer.json` file:
 ```js
 {
     "require": {
-        "dwnload/edd-software-license-manager": "^1.0.0"
+        "dwnload/edd-software-license-manager": "^1.2.0"
     }
 }
 ```
@@ -31,13 +31,13 @@ $args = [
         'license' => (string) $license_key, // license key (used get_option above to retrieve from DB)
         'item_name' => 'Super Cool Plugin', // name of this plugin (matching your EDD Download title)
         'author' => 'Austin Passy', // author of this plugin
-        'beta' => $use_beta,
+        'beta' => (bool) isset( $use_beta ),
     ],
     'name' => plugin_basename( __FILE__ ),
     'slug' => basename( __FILE__, '.php' ),
     'version' => (string) $version,
     'wp_override' => false,
-    'beta' => (bool) $use_beta,
+    'beta' => (bool) isset( $use_beta ),
 ];
 
 if ( is_admin() ) {
