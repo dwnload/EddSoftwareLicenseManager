@@ -22,7 +22,7 @@ abstract class AbstractLicenceManager {
     const TRANSIENT_PREFIX = 'dwnload_edd_slm_';
     const LICENSE_SETTING = 'dwnload_license_data';
 
-    /** @var  string $api_url */
+    /** @var string $api_url */
     private $api_url;
 
     /**
@@ -211,7 +211,7 @@ abstract class AbstractLicenceManager {
      */
     protected function getSubmitButton( string $value, string $class, string $name, string $status ) {
         printf(
-            '<input name="%3$s" id="EddSoftwareLicenseManagerButton" class="button %2$s" value="%1$s" data-status="%4$s" type="button">',
+            '<p><input name="%3$s" id="EddSoftwareLicenseManagerButton" class="button %2$s" value="%1$s" data-status="%4$s" type="button"></p>',
             $value,
             $class,
             $name,
