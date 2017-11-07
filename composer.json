@@ -1,7 +1,7 @@
 {
   "name": "dwnload/edd-software-license-manager",
   "description": "A PHP class abstraction for managing WordPress plugin licenses and auto-updates that are sold on an Easy Digital Downloads store.",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "license": "MIT",
   "authors": [
     {
@@ -13,6 +13,7 @@
   ],
   "require": {
     "composer/installers": "~1.0",
+    "dwnload/wp-settings-api": "^2.1.4",
     "thefrosty/wp-utilities": "^0.2.2",
     "php": ">=7.0.4"
   },

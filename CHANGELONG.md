@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.3.0 - 2017-11-07
+### Updated
+- Update CSS to better reflect design on license page.
+- Update JS to work with AJAX calls to the EDD store API.
+- Add paragraph wrapper to the button for license management.
+- Update LicenseManger class with better sanitization on AJAX action, and correct location of assets.
+- Switch icon to spinner at 2x size in LicenseManger class.
+- Add check for license key obfuscation before AJAX send.
+- Make sure AJAX call always dies.
+
 ## 1.2.0 - 2017-11-06
 ### Updated
 - Changed methods in PluginUpdater from snake case to camel case.
