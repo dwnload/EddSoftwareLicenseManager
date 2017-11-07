@@ -4,6 +4,7 @@ namespace Dwnload\EddSoftwareLicenseManager\Edd;
 
 use Dwnload\EddSoftwareLicenseManager\Edd\Models\LicenseStatus;
 use Dwnload\EddSoftwareLicenseManager\Edd\Models\PluginData;
+use Dwnload\WpSettingsApi\Api\Sanitize;
 use Dwnload\WpSettingsApi\Api\SettingField;
 use Dwnload\WpSettingsApi\Api\SettingSection;
 use Dwnload\WpSettingsApi\App;
@@ -58,7 +59,7 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface 
             add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
         } );
         add_action( App::ACTION_PREFIX . 'form_top', [ $this, 'licenseData' ] );
-        add_action( 'wp_ajax_' . self::AJAX_ACTION, [ $this, 'licenseAjax' ] );
+        add_action( 'wp_ajax_' . sanitize_key( self::AJAX_ACTION ), [ $this, 'licenseAjax' ] );
     }
 
     /**
@@ -67,22 +68,23 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface 
     public function enqueue_scripts() {
         wp_enqueue_style(
             self::HANDLE,
-            plugins_url( '../assets/css/licensemanager.css', dirname( __FILE__ ) ),
+            plugins_url( '/assets/css/licensemanager.css', dirname( __DIR__ ) ),
             [],
             $this->app->getVersion()
         );
         wp_enqueue_script(
             self::HANDLE,
-            plugins_url( '../assets/js/licensemanager.js', dirname( __FILE__ ) ),
+            plugins_url( '/assets/js/licensemanager.js', dirname( __DIR__ ) ),
             [ 'jquery' ],
             $this->app->getVersion(),
             true
         );
         wp_localize_script( self::HANDLE, 'EddLicenseManager', [
-            'action' => self::AJAX_ACTION,
+            'action' => sanitize_key( self::AJAX_ACTION ),
+            'license_attr' => "{$this->field->getSectionId()}[{$this->field->getName()}]",
             'dirname' => __DIR__,
             'nonce' => wp_create_nonce( plugin_basename( __FILE__ ) . self::AJAX_ACTION . '-nonce' ),
-            'loading' => admin_url( '/images/wpspin_light.gif' ),
+            'loading' => admin_url( '/images/spinner-2x.gif' ),
         ] );
     }
 
@@ -100,11 +102,15 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface 
     public function licenseAjax() {
         check_ajax_referer( plugin_basename( __FILE__ ) . self::AJAX_ACTION . '-nonce', 'nonce' );
 
-        if ( empty( $_POST ) || empty( $_POST[ $this->field->getSectionId() ][ $this->field->getName() ] ) ) {
+        if ( empty( $_POST ) || empty( $_POST['license_key'] ) ) {
             wp_send_json_error();
         }
 
-        $license_key = esc_html( wp_unslash( $_POST[ $this->field->getSectionId() ][ $this->field->getName() ] ) );
+        $license_value = esc_html( wp_unslash( $_POST['license_key'] ) );
+        $license_key = $this->field->isObfuscated() &&
+        method_exists( Sanitize::class, 'sanitizeObfuscated' ) ?
+            Sanitize::sanitizeObfuscated( $license_value, [], $this->field->getName() ) : $license_value;
+
         $plugin_action = sanitize_text_field( wp_unslash( $_POST['plugin_action'] ) );
 
         if ( $plugin_action === LicenseStatus::LICENSE_ACTIVATE ) {
@@ -125,5 +131,8 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface 
             $message = $this->checkLicense( $license_key, $this->plugin_data, $update_option = true );
             wp_send_json_success( $message );
         }
+
+        // No matching action
+        wp_send_json_error();
     }
 }
