@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.4.0 - 2019-01-03
+### Updated
+- `thefrosty/wp-utilties` to v^1.3.1.
+- `dwnload/wp-settings-api` to v^2.6.0.
+- Bump min PHP version to 7.1.
+
 ## 1.3.0 - 2017-11-07
 ### Updated
 - Update CSS to better reflect design on license page.
