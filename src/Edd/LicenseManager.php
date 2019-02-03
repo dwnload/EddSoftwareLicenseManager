@@ -8,7 +8,7 @@ use Dwnload\WpSettingsApi\Api\Sanitize;
 use Dwnload\WpSettingsApi\Api\SettingField;
 use Dwnload\WpSettingsApi\Api\SettingSection;
 use Dwnload\WpSettingsApi\App;
-use TheFrosty\WP\Utils\WpHooksInterface;
+use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
 
 /**
  * Class LicenseManager
