@@ -2,7 +2,7 @@
 
 namespace Dwnload\EddSoftwareLicenseManager\Edd\Models;
 
-use TheFrosty\WP\Utils\Models\BaseModel;
+use TheFrosty\WpUtilities\Models\BaseModel;
 
 /**
  * Class LicenseStatus
