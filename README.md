@@ -5,7 +5,7 @@ A PHP class abstraction for managing WordPress plugin licenses and auto-updates 
 
 To install this package, edit your `composer.json` file:
 
-```js
+```json
 {
     "require": {
         "dwnload/edd-software-license-manager": "^1.3.0"
@@ -24,7 +24,7 @@ use Dwnload\EddSoftwareLicenseManager\Edd;
 
 // In the root of your plugin 
 $args = [
-    'api_url' => trailingslashit( https://plugingarden.dwnload.io ),
+    'api_url' => trailingslashit( 'https://plugingarden.dwnload.io' ),
     'plugin_file' => __FILE__,
     'api_data' => [
         'version' => (string) $version, // current version number
