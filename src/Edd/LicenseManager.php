@@ -32,11 +32,8 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface
 
     public function addHooks(): void
     {
-        add_action(WpSettingsApi::ACTION_PREFIX . 'settings_page_loaded', function () {
-            add_action('admin_enqueue_scripts', [$this, 'enqueue_scripts']);
-        });
-        add_action(ActionHookName::FORM_TOP, [$this, 'licenseData']);
-        add_action('wp_ajax_' . sanitize_key(self::AJAX_ACTION), [$this, 'licenseAjax']);
+        $this->addAction(WpSettingsApi::HOOK_INIT, [$this, 'init'], 299, 3);
+        $this->addAction('wp_ajax_' . sanitize_key(self::AJAX_ACTION), [$this, 'licenseAjax']);
     }
 
     /**
@@ -53,6 +50,7 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface
         if (!$wp_settings_api->isCurrentMenuSlug($this->parent->getSlug())) {
             return;
         }
+        $this->addAction('admin_enqueue_scripts', [$this, 'enqueueScripts']);
 
         $section_id = $section_manager->addSection(
             new SettingSection([
@@ -62,14 +60,17 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface
         );
 
         $licenses = (array)\apply_filters('dwnload_edd_slm_licenses', []);
-        foreach ($licenses as $field) {
+        foreach ($licenses as $plugin_id => $plugin_name) {
             $field_manager->addField(
                 new SettingField(
                     [
-                        SettingField::NAME => $field,
-                        SettingField::LABEL => \sprintf(\__('%s License', 'edd-software-license-manager'), $field),
+                        SettingField::NAME => $plugin_id,
+                        SettingField::LABEL => \sprintf(
+                            \__('%s License', 'edd-software-license-manager'),
+                            $plugin_name
+                        ),
                         SettingField::TYPE => FieldTypes::FIELD_TYPE_TEXT,
-                        SettingField::DESC => '',
+                        SettingField::DESC => include dirname(__DIR__, 2) . '/views/license.php',
                         SettingField::SECTION_ID => $section_id,
                     ]
                 )
@@ -80,7 +81,7 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface
     /**
      * Enqueue License only script
      */
-    public function enqueue_scripts(): void
+    protected function enqueueScripts(): void
     {
         $use_local = apply_filters('dwnload_edd_slm_use_local_scripts', false);
         $get_src = function (string $path) use ($use_local): string {
@@ -112,27 +113,14 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface
         );
         wp_localize_script(self::HANDLE, 'EddLicenseManager', [
             'action' => sanitize_key(self::AJAX_ACTION),
-            'license_attr' => "{$this->field->getSectionId()}[{$this->field->getName()}]",
+//            'license_attr' => "{$this->field->getSectionId()}[{$this->field->getName()}]",
             'dirname' => __DIR__,
             'nonce' => wp_create_nonce(plugin_basename(__FILE__) . self::AJAX_ACTION . '-nonce'),
             'loading' => admin_url('/images/spinner-2x.gif'),
         ]);
     }
 
-    /**
-     * Output additional HTML to the top of the section form.
-     *
-     * @param SettingSection $section
-     */
-    public function licenseData(SettingSection $section): void
-    {
-        dump($section->getId());
-        if ($section->getId() === $this->field->getSectionId()) {
-            include dirname(__DIR__, 2) . '/views/license.php';
-        }
-    }
-
-    public function licenseAjax(): void
+    protected function licenseAjax(): void
     {
         check_ajax_referer(plugin_basename(__FILE__) . self::AJAX_ACTION . '-nonce', 'nonce');
 
