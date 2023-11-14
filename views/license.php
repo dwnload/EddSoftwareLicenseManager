@@ -11,18 +11,16 @@ if (!($this instanceof LicenseManager)) {
     wp_die();
 }
 
-$field = $this->getSettingField();
-$license_key = Options::getOption($field->getName(), $field->getSectionId());
+if (!isset($plugin_id) || !isset($section_id)) {
+    return;
+}
+$license_key = Options::getOption($plugin_id, $section_id);
 $license_data = get_option(AbstractLicenceManager::LICENSE_SETTING, []);
 $license_status = $license_data['status'] ?? LicenseStatus::LICENSE_INACTIVE;
 
-if (empty($license_key)) {
-    echo 'Please save your license key.';
+ob_start();
 
-    return;
-}
-
-printf('<h2>License Status: <span class="license-status %1$s">%1$s</span></h2>', $license_status);
+printf('<strong>License Status: <span class="license-status %1$s">%1$s</span></strong>', $license_status);
 
 if (!empty($license_data) && $license_data['status'] === LicenseStatus::LICENSE_ACTIVE) {
     $this->buildSubmitButton(
@@ -46,3 +44,5 @@ if (!empty($license_data) && $license_data['status'] === LicenseStatus::LICENSE_
         $license_status
     );
 }
+
+return ob_get_clean();
