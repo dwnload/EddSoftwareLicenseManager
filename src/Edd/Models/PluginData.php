@@ -49,7 +49,7 @@ class PluginData extends BaseModel
     /**
      * @param string $url
      */
-    public function setApiUrl(string $url): void
+    protected function setApiUrl(string $url): void
     {
         $this->api_url = trailingslashit($url);
     }
@@ -65,7 +65,7 @@ class PluginData extends BaseModel
     /**
      * @param array $data
      */
-    public function setApiData(array $data): void
+    protected function setApiData(array $data): void
     {
         $this->api_data = $data;
     }
@@ -81,7 +81,7 @@ class PluginData extends BaseModel
     /**
      * @param bool $allow_beta
      */
-    public function setBeta(bool $allow_beta): void
+    protected function setBeta(bool $allow_beta): void
     {
         $this->beta = $allow_beta;
     }
@@ -97,7 +97,7 @@ class PluginData extends BaseModel
     /**
      * @param int $item_id
      */
-    public function setItemId(int $item_id): void
+    protected function setItemId(int $item_id): void
     {
         $this->item_id = $item_id;
     }
@@ -113,7 +113,7 @@ class PluginData extends BaseModel
     /**
      * @param string $name
      */
-    public function setName(string $name): void
+    protected function setName(string $name): void
     {
         $this->name = $name;
     }
@@ -129,7 +129,7 @@ class PluginData extends BaseModel
     /**
      * @param string $license
      */
-    public function setLicense(string $license): void
+    protected function setLicense(string $license): void
     {
         $this->license = $license;
     }
@@ -145,7 +145,7 @@ class PluginData extends BaseModel
     /**
      * @param string $file
      */
-    public function setPluginFile(string $file): void
+    protected function setPluginFile(string $file): void
     {
         $this->plugin_file = $file;
     }
@@ -161,7 +161,7 @@ class PluginData extends BaseModel
     /**
      * @param string $slug
      */
-    public function setSlug(string $slug): void
+    protected function setSlug(string $slug): void
     {
         $this->slug = $slug;
     }
@@ -177,7 +177,7 @@ class PluginData extends BaseModel
     /**
      * @param string $version
      */
-    public function setVersion(string $version): void
+    protected function setVersion(string $version): void
     {
         $this->version = $version;
     }
@@ -193,7 +193,7 @@ class PluginData extends BaseModel
     /**
      * @param bool $wp_override
      */
-    public function setWpOverride(bool $wp_override): void
+    protected function setWpOverride(bool $wp_override): void
     {
         $this->wp_override = $wp_override;
     }
@@ -209,7 +209,7 @@ class PluginData extends BaseModel
     /**
      * @param string $cache_key
      */
-    public function setCacheKey(string $cache_key): void
+    protected function setCacheKey(string $cache_key): void
     {
         $this->cache_key = $cache_key;
     }
