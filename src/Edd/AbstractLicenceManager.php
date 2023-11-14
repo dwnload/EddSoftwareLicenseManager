@@ -40,23 +40,32 @@ abstract class AbstractLicenceManager
     {
         $this->parent = $parent;
         $this->pluginData = new PluginData($data);
+        $this->api_url = $this->pluginData->getApiUrl();
     }
 
     /**
      * Build the HTML submit button.
-     * @param string $value
+     * @param string $plugin_id
      * @param string $class
-     * @param string $name
+     * @param string $action
      * @param string $status
      */
-    public function buildSubmitButton(string $value, string $class, string $name, string $status): void
+    public function buildSubmitButton(string $plugin_id, string $class, string $action, string $status): void
     {
+        $text = match ($action) {
+            LicenseStatus::LICENSE_DEACTIVATE => $this->getStrings()['deactivate-license'],
+            LicenseStatus::LICENSE_CHECK_LICENSE => $this->getStrings()['check-license'],
+            LicenseStatus::LICENSE_ACTIVATE => $this->getStrings()['activate-license'],
+            default => 'Unknown',
+        };
+
         printf(
-            '<p><input name="%3$s" id="EddSoftwareLicenseManagerButton_%3$s" class="button %2$s" value="%1$s" data-status="%4$s" type="button"></p>',
-            $value,
+            '<a id="EddSoftwareLicenseManagerButton_%3$s" class="button %2$s" data-action="%3$s" data-plugin_id="%5$s" data-status="%4$s">%1$s</a>',
+            $text,
             $class,
-            $name,
-            $status
+            $action,
+            $status,
+            $plugin_id
         );
     }
 
@@ -115,12 +124,11 @@ abstract class AbstractLicenceManager
      * Activates the license key.
      *
      * @param string $license The incoming POST license key
-     * @param string $plugin_slug
+     * @param string $plugin_id
      * @param int $item_id
-     *
-     * @return bool
+     * @return false|array
      */
-    protected function activateLicense(string $license, string $plugin_slug, int $item_id): bool
+    protected function activateLicense(string $license, string $plugin_id, int $item_id): false|array
     {
         if (empty($license)) {
             return false;
@@ -134,18 +142,17 @@ abstract class AbstractLicenceManager
 
         $response = $this->getActivateLicense($api_params);
 
-        if (
-            $response->isValidResponse() &&
-            strcasecmp($response->getLicense(), LicenseStatus::LICENSE_ACTIVE) === 0
-        ) {
-            $key = $this->getTransientKey($plugin_slug . '_license_message', self::TRANSIENT_PREFIX);
+        if ($response->isValidResponse()) {
+            $key = $this->getTransientKey($plugin_id . '_license_message', self::TRANSIENT_PREFIX);
             $option = \get_option(self::LICENSE_SETTING, []);
-            $option[$plugin_slug]['license'] = trim($license);
-            $option[$plugin_slug]['status'] = trim($response->getLicense());
+            $option[$plugin_id]['license'] = trim($license);
+            $option[$plugin_id]['expires'] = trim($response->getExpires());
+            $option[$plugin_id]['status'] = trim($response->getLicense());
 
             \update_option(self::LICENSE_SETTING, $option);
+            \delete_transient($key);
 
-            return \delete_transient($key);
+            return $option;
         }
 
         return false;
@@ -155,12 +162,11 @@ abstract class AbstractLicenceManager
      * Deactivates the license key.
      *
      * @param string $license The incoming POST license key
-     * @param string $plugin_slug
+     * @param string $plugin_id
      * @param int $item_id
-     *
-     * @return bool
+     * @return false|array
      */
-    protected function deactivateLicense(string $license, string $plugin_slug, int $item_id): bool
+    protected function deactivateLicense(string $license, string $plugin_id, int $item_id): false|array
     {
         $api_params = [
             'edd_action' => self::DEACTIVATE_LICENCE,
@@ -170,18 +176,17 @@ abstract class AbstractLicenceManager
 
         $response = $this->getDeactivateLicense($api_params);
 
-        if (
-            $response->isValidResponse() &&
-            strcasecmp($response->getLicense(), LicenseStatus::LICENSE_DEACTIVATED) === 0
-        ) {
-            $key = $this->getTransientKey($plugin_slug . '_license_message', self::TRANSIENT_PREFIX);
+        if ($response->isValidResponse()) {
+            $key = $this->getTransientKey($plugin_id . '_license_message', self::TRANSIENT_PREFIX);
             $option = get_option(self::LICENSE_SETTING, []);
-            $option[$plugin_slug]['license'] = trim($license);
-            $option[$plugin_slug]['status'] = '';
+            $option[$plugin_id]['license'] = trim($license);
+            $option[$plugin_id]['expires'] = trim($response->getExpires());
+            $option[$plugin_id]['status'] = trim($response->getLicense());
 
             update_option(self::LICENSE_SETTING, $option);
+            delete_transient($key);
 
-            return delete_transient($key);
+            return $option;
         }
 
         return false;
