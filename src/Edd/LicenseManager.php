@@ -113,8 +113,6 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface
         );
         wp_localize_script(self::HANDLE, 'EddLicenseManager', [
             'action' => sanitize_key(self::AJAX_ACTION),
-//            'license_attr' => "{$this->field->getSectionId()}[{$this->field->getName()}]",
-            'dirname' => __DIR__,
             'nonce' => wp_create_nonce(plugin_basename(__FILE__) . self::AJAX_ACTION . '-nonce'),
             'loading' => admin_url('/images/spinner-2x.gif'),
         ]);
@@ -128,34 +126,33 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface
             wp_send_json_error();
         }
 
-        $license_value = esc_html(wp_unslash($_POST['license_key']));
-        $license_key = $this->field->isObfuscated() &&
-        method_exists(Sanitize::class, 'sanitizeObfuscated') ?
-            Sanitize::sanitizeObfuscated($license_value, [], $this->field->getName()) : $license_value;
-
+        $license_key = sanitize_text_field(wp_unslash($_POST['license_key']));
         $plugin_action = sanitize_text_field(wp_unslash($_POST['plugin_action']));
+        $plugin_id = sanitize_text_field(wp_unslash($_POST['plugin_id']));
 
-        if ($plugin_action === LicenseStatus::LICENSE_ACTIVATE) {
-            if ($this->activateLicense($license_key, $this->pluginData->getSlug(), $this->pluginData->getItemId())) {
-                wp_send_json_success();
-            }
-            wp_send_json_error();
-        }
-
-        if ($plugin_action === LicenseStatus::LICENSE_DEACTIVATE) {
-            if ($this->deactivateLicense(
-                $license_key,
-                $this->pluginData->getSlug(),
-                $this->pluginData->getItemId()
-            )) {
-                wp_send_json_success();
-            }
-            wp_send_json_error();
-        }
-
-        if ($plugin_action === LicenseStatus::LICENSE_CHECK_LICENSE) {
-            $message = $this->checkLicense($this->pluginData, $license_key, $update_option = true);
-            wp_send_json_success($message);
+        switch ($plugin_action) {
+            case LicenseStatus::LICENSE_ACTIVATE:
+                if ($this->activateLicense(
+                    $license_key,
+                    $plugin_id,
+                    $this->pluginData->getItemId()
+                )) {
+                    wp_send_json_success();
+                }
+                break;
+            case LicenseStatus::LICENSE_DEACTIVATE:
+                if ($this->deactivateLicense(
+                    $license_key,
+                    $plugin_id,
+                    $this->pluginData->getItemId()
+                )) {
+                    wp_send_json_success();
+                }
+                break;
+            case LicenseStatus::LICENSE_CHECK_LICENSE:
+                $message = $this->checkLicense($this->pluginData, $license_key, true);
+                wp_send_json_success($message);
+                break;
         }
 
         // No matching action
