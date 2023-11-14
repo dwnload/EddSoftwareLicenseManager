@@ -50,7 +50,7 @@ class PluginUpdater implements WpHooksInterface
      * }
      */
     // @formatter:on
-    public function __construct(array $args = [])
+    public function __construct(array $args)
     {
         global $edd_plugin_data;
 
