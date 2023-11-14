@@ -16,30 +16,30 @@ if (!isset($plugin_id) || !isset($section_id)) {
 }
 $license_key = Options::getOption($plugin_id, $section_id);
 $license_data = get_option(AbstractLicenceManager::LICENSE_SETTING, []);
-$license_status = $license_data['status'] ?? LicenseStatus::LICENSE_INACTIVE;
+$license_status = $license_data[$plugin_id]['status'] ?? LicenseStatus::LICENSE_INACTIVE;
 
 ob_start();
 
-printf('<strong>License Status: <span class="license-status %1$s">%1$s</span></strong>', $license_status);
+printf('<strong>License Status: <span class="license-status %1$s">%1$s</span></strong><br>', $license_status);
 
-if (!empty($license_data) && $license_data['status'] === LicenseStatus::LICENSE_ACTIVE) {
+if (!empty($license_data) && $license_status === LicenseStatus::LICENSE_ACTIVE) {
     $this->buildSubmitButton(
-        $this->getStrings()['deactivate-license'],
+        $plugin_id,
         'button-primary',
         LicenseStatus::LICENSE_DEACTIVATE,
-        $license_status
+        $license_status,
     );
     echo '&nbsp;&nbsp;';
     $this->buildSubmitButton(
-        $this->getStrings()['check-license'],
+        $plugin_id,
         'button-secondary',
         LicenseStatus::LICENSE_CHECK_LICENSE,
         $license_status
     );
 } else {
     $this->buildSubmitButton(
-        $this->getStrings()['activate-license'],
-        'button-primary',
+        $plugin_id,
+        empty($license_key) ? 'button-primary disabled' : 'button-primary',
         LicenseStatus::LICENSE_ACTIVATE,
         $license_status
     );
