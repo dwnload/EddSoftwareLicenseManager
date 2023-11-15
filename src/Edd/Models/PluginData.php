@@ -16,14 +16,14 @@ class PluginData extends BaseModel
     /** @var string $api_url */
     private string $api_url;
 
-    /** @var array $api_data */
-    private array $api_data = [];
-
     /** @var bool $beta */
     private bool $beta = false;
 
     /** @var int $item_id */
     private int $item_id;
+
+    /** @var string $item_name */
+    private string $item_name = '';
 
     /** @var string $license */
     private string $license;
@@ -63,22 +63,6 @@ class PluginData extends BaseModel
     }
 
     /**
-     * @param array $data
-     */
-    protected function setApiData(array $data): void
-    {
-        $this->api_data = $data;
-    }
-
-    /**
-     * @return array
-     */
-    public function getApiData(): array
-    {
-        return $this->api_data;
-    }
-
-    /**
      * @param bool $allow_beta
      */
     protected function setBeta(bool $allow_beta): void
@@ -108,6 +92,22 @@ class PluginData extends BaseModel
     public function getItemId(): int
     {
         return $this->item_id;
+    }
+
+    /**
+     * @param string $item_name
+     */
+    protected function setItemName(string $item_name): void
+    {
+        $this->item_name = $item_name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getItemName(): string
+    {
+        return $this->item_name;
     }
 
     /**
