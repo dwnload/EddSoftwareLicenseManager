@@ -27,9 +27,8 @@
           $('<img class="EddLicenseLoader" src="' + EddLicenseManager.loading + '" height="16" width="16">').insertAfter($this)
         },
         success: function (response) {
-          console.log(response)
           if (typeof response.success !== 'undefined' && response.success) {
-            location.reload()
+            $this.closest('form').submit()
           }
           $this.attr('disabled', false)
           $('img[class="EddLicenseLoader"]').remove()
