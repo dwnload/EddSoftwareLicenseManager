@@ -16,11 +16,21 @@ if (!isset($plugin_id) || !isset($section_id)) {
 }
 $license_key = Options::getOption($plugin_id, $section_id);
 $license_data = get_option(AbstractLicenceManager::LICENSE_SETTING, []);
+$license_expires = $license_data[$plugin_id]['expires'] ?? '';
 $license_status = $license_data[$plugin_id]['status'] ?? LicenseStatus::LICENSE_INACTIVE;
 
 ob_start();
 
-printf('<strong>License Status: <span class="license-status %1$s">%1$s</span></strong><br>', $license_status);
+echo "<div class='EddSoftwareLicenseManager'>";
+printf('License Status: <span class="license-status %1$s">%1$s</span>', $license_status);
+if (!empty($license_expires)) {
+    printf(
+        ' &mdash; License Expires: <span class="license-expires">%1$s</span>',
+        date_i18n(get_option('date_format'), strtotime($license_expires))
+    );
+}
+
+echo '<br><hr>';
 
 if (!empty($license_data) && $license_status === LicenseStatus::LICENSE_ACTIVE) {
     $this->buildSubmitButton(
@@ -44,5 +54,6 @@ if (!empty($license_data) && $license_status === LicenseStatus::LICENSE_ACTIVE) 
         $license_status
     );
 }
+echo '</div>';
 
 return ob_get_clean();
