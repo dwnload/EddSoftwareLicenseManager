@@ -12,6 +12,7 @@ use Dwnload\WpSettingsApi\Settings\SectionManager;
 use Dwnload\WpSettingsApi\WpSettingsApi;
 use TheFrosty\WpUtilities\Api\TransientsTrait;
 use TheFrosty\WpUtilities\Plugin\Plugin;
+use function __;
 
 /**
  * Class LicenceManager
@@ -28,19 +29,11 @@ abstract class AbstractLicenceManager
     public const DEACTIVATE_LICENCE = 'deactivate_license';
     public const TRANSIENT_PREFIX = 'dwnload_edd_slm_';
     public const LICENSE_SETTING = 'dwnload_license_data';
-
-    /** @var string $api_url */
-    protected string $api_url;
-
-    /** @var PluginData $plugin_data */
     protected PluginData $pluginData;
-    protected Plugin $parent;
 
-    public function __construct(Plugin $parent, array $data)
+    public function __construct(protected Plugin $parent, array $data)
     {
-        $this->parent = $parent;
         $this->pluginData = new PluginData($data);
-        $this->api_url = $this->pluginData->getApiUrl();
     }
 
     /**
@@ -59,7 +52,7 @@ abstract class AbstractLicenceManager
             default => 'Unknown',
         };
 
-        printf(
+        \printf(
             '<a id="EddSoftwareLicenseManagerButton_%3$s" class="button %2$s" data-action="%3$s" data-plugin_id="%5$s" data-status="%4$s">%1$s</a>',
             $text,
             $class,
@@ -138,6 +131,9 @@ abstract class AbstractLicenceManager
             'edd_action' => self::ACTIVATE_LICENCE,
             'license' => $license,
             'item_id' => $item_id,
+            'item_name' => rawurlencode($this->pluginData->getItemName()),
+            'url' => home_url(),
+            'environment' => wp_get_environment_type(),
         ];
 
         $response = $this->getActivateLicense($api_params);
@@ -172,6 +168,9 @@ abstract class AbstractLicenceManager
             'edd_action' => self::DEACTIVATE_LICENCE,
             'license' => $license,
             'item_id' => $item_id,
+            'item_name' => rawurlencode($this->pluginData->getItemName()),
+            'url' => home_url(),
+            'environment' => wp_get_environment_type(),
         ];
 
         $response = $this->getDeactivateLicense($api_params);
@@ -183,8 +182,8 @@ abstract class AbstractLicenceManager
             $option[$plugin_id]['expires'] = trim($response->getExpires());
             $option[$plugin_id]['status'] = trim($response->getLicense());
 
-            update_option(self::LICENSE_SETTING, $option);
-            delete_transient($key);
+            \update_option(self::LICENSE_SETTING, $option);
+            \delete_transient($key);
 
             return $option;
         }
@@ -195,17 +194,13 @@ abstract class AbstractLicenceManager
     /**
      * Checks if license is valid and gets expire date.
      *
-     * @param PluginData $plugin_data
-     * @param string|null $license The incoming POST license key
+     * @param string $license The incoming POST license key
+     * @param string $plugin_id
      * @param bool $update_option
-     *
      * @return string $message License status message.
      */
-    protected function checkLicense(
-        PluginData $plugin_data,
-        ?string $license = null,
-        bool $update_option = false
-    ): string {
+    protected function checkLicense(string $license, string $plugin_id, bool $update_option = false): string
+    {
         if (empty($license)) {
             return $this->getStrings()['enter-key'];
         }
@@ -213,7 +208,10 @@ abstract class AbstractLicenceManager
         $api_params = [
             'edd_action' => self::CHECK_LICENCE,
             'license' => $license,
-            'item_id' => $plugin_data->getItemId(),
+            'item_id' => $this->pluginData->getItemId(),
+            'item_name' => rawurlencode($this->pluginData->getItemName()),
+            'url' => home_url(),
+            'environment' => wp_get_environment_type(),
         ];
 
         $response = $this->getCheckLicense($api_params);
@@ -224,9 +222,11 @@ abstract class AbstractLicenceManager
         }
 
         $expires = date_i18n(get_option('date_format'), strtotime($response->getExpires()));
-        $renew_link = '<a href="' . esc_url(
-                $this->getRenewalUrl($license, $plugin_data->getItemId())
-            ) . '" target="_blank">' . $this->getStrings()['renew'] . '</a>';
+        $renew_link = \sprintf(
+            '<a href="%1$s" target="_blank">%2$s</a>',
+            esc_url($this->getRenewalUrl($license, $this->pluginData->getItemId())),
+            $this->getStrings()['renew']
+        );
 
 
         // Unlimited ??
@@ -262,24 +262,23 @@ abstract class AbstractLicenceManager
         }
 
         $option = get_option(self::LICENSE_SETTING, []);
-        $status = $option[$plugin_data->getItemId()]['status'] ?? '';
-        $option[$plugin_data->getItemId()]['status'] = $response->getLicense();
-        $key = $this->getTransientKey($plugin_data->getItemId() . '_license_message', self::TRANSIENT_PREFIX);
+        $status = $option[$plugin_id]['status'] ?? '';
+        $option[$plugin_id]['status'] = $response->getLicense();
+        $key = $this->getTransientKey($this->pluginData->getItemId() . '_license_message', self::TRANSIENT_PREFIX);
 
         if ($update_option) {
-            if (!empty($status) && $status != $option[$plugin_data->getItemId()]['status']) {
-                update_option(self::LICENSE_SETTING, $option);
-                delete_transient($key);
+            if (!empty($status) && $status !== $option[$plugin_id]['status']) {
+                \update_option(self::LICENSE_SETTING, $option);
+                \delete_transient($key);
             }
         }
 
         return $message;
     }
 
-
     /**
+     * Get ActivateLicense object,
      * @param array $api_params
-     *
      * @return ActivateLicense
      */
     private function getActivateLicense(array $api_params): ActivateLicense
@@ -288,8 +287,8 @@ abstract class AbstractLicenceManager
     }
 
     /**
+     * Get DeactivateLicense object,
      * @param array $api_params
-     *
      * @return DeactivateLicense
      */
     private function getDeactivateLicense(array $api_params): DeactivateLicense
@@ -298,8 +297,8 @@ abstract class AbstractLicenceManager
     }
 
     /**
+     * Get CheckLicense object,
      * @param array $api_params
-     *
      * @return CheckLicense
      */
     private function getCheckLicense(array $api_params): CheckLicense
@@ -309,42 +308,38 @@ abstract class AbstractLicenceManager
 
     /**
      * Makes a call to the API.
-     *
      * @param array $api_params to be used for wp_remote_get.
-     *
      * @return array $response decoded JSON response.
      */
     private function getApiResponse(array $api_params): array
     {
-        $response = wp_remote_get(
-            esc_url_raw(add_query_arg($api_params, $this->api_url)),
+        $response = \wp_remote_post(
+            \esc_url($this->pluginData->getApiUrl()),
             [
                 'timeout' => 15,
                 'sslverify' => true,
+                'body' => $api_params,
             ]
         );
 
         // Make sure the response came back okay.
-        if (is_wp_error($response)) {
+        if (\is_wp_error($response)) {
             return [];
         }
 
-        return json_decode(wp_remote_retrieve_body($response), true);
+        return \json_decode(\wp_remote_retrieve_body($response), true);
     }
 
     /**
-     * Constructs a renewal link
-     *
+     * Constructs a renewal link.
      * @param string $license_key
-     * @param int $item_id
-     *
+     * @param int|null $item_id
      * @return string
-     * @since 1.0.0
      */
-    private function getRenewalUrl(string $license_key, int $item_id): string
+    private function getRenewalUrl(string $license_key = '', ?int $item_id = null): string
     {
         if (!empty($license_key) || !empty($item_id)) {
-            return add_query_arg(
+            return \add_query_arg(
                 [
                     'edd_license' => $license_key,
                     'download_id' => $item_id,
@@ -352,10 +347,10 @@ abstract class AbstractLicenceManager
                     'utm_medium' => 'edd-software-licence',
                     'utm_campaign' => 'licence',
                 ],
-                sprintf('%s/checkout/', untrailingslashit($this->api_url))
+                \sprintf('%s/checkout/', \untrailingslashit($this->pluginData->getApiUrl()))
             );
         }
 
-        return $this->api_url;
+        return $this->pluginData->getApiUrl();
     }
 }
