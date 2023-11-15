@@ -1,28 +1,24 @@
-h2 span.license-status {
-    background-color: whitesmoke;
-    border: 1px solid;
-    font-size: 90%;
-    padding: 4px 6px;
-    border-radius: 2px;
+div.EddSoftwareLicenseManager .license-status {
 }
 
-h2 span.license-status.active {
-    background-color: #f6fef9;
-    border-color: #23d160;
-    color: #0e301a;
+div.EddSoftwareLicenseManager .license-status.active {
+    color: #066226;
+    text-shadow: 1px 1px 1px rgba(20, 255, 0, 0.5);
 }
 
-h2 span.license-status.inactive {
-    background-color: #fffdf5;
-    border-color: #ffdd57;
-    color: #3b3108;
+div.EddSoftwareLicenseManager .license-status.inactive {
+    color: #886d03;
+    text-shadow: 1px 1px 1px rgba(255, 215, 0, 0.5);
 }
 
-h2 span.license-status.expired,
-h2 span.license-status.invalid {
-    background-color: #fff5f7;
-    border-color: #ff3860;
-    color: #cd0930;
+div.EddSoftwareLicenseManager .license-status.expired,
+div.EddSoftwareLicenseManager .license-status.invalid {
+    color: #990422;
+    text-shadow: 1px 1px 1px rgba(255, 37, 37, 0.5);
+}
+
+div.EddSoftwareLicenseManager hr {
+    visibility: hidden;
 }
 
 img.EddLicenseLoader {
