@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.0.0 - 2023-11-15
+- Bump min PHP version to 8.0.
+
 ## 1.4.0 - 2019-01-03
 ### Updated
 - `thefrosty/wp-utilties` to v^1.3.1.
