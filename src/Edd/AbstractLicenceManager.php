@@ -15,8 +15,7 @@ use TheFrosty\WpUtilities\Plugin\Plugin;
 use function __;
 
 /**
- * Class LicenceManager
- *
+ * Class AbstractLicenceManager
  * @package Dwnload\EddSoftwareLicenseManager\Edd
  */
 abstract class AbstractLicenceManager
@@ -31,6 +30,11 @@ abstract class AbstractLicenceManager
     public const LICENSE_SETTING = 'dwnload_license_data';
     protected PluginData $pluginData;
 
+    /**
+     * AbstractLicenceManager constructor.
+     * @param Plugin $parent
+     * @param array $data
+     */
     public function __construct(protected Plugin $parent, array $data)
     {
         $this->pluginData = new PluginData($data);
@@ -53,7 +57,7 @@ abstract class AbstractLicenceManager
         };
 
         \printf(
-            '<a id="EddSoftwareLicenseManagerButton_%3$s" class="button %2$s" data-action="%3$s" data-plugin_id="%5$s" data-status="%4$s">%1$s</a>',
+            '<a href="javascript:;" id="EddSoftwareLicenseManagerButton_%3$s" class="button %2$s" data-action="%3$s" data-plugin_id="%5$s" data-status="%4$s">%1$s</a>',
             $text,
             $class,
             $action,
