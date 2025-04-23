@@ -27,10 +27,14 @@
           $('<img class="EddLicenseLoader" src="' + EddLicenseManager.loading + '" height="16" width="16">').insertAfter($this)
         },
         success: function (response) {
+          $('img[class="EddLicenseLoader"]').remove()
           if (typeof response.success !== 'undefined' && response.success) {
+            if ($this.data('action') === 'check_license') {
+              window.alert(response.data)
+              return
+            }
             $('input#submit').trigger('click')
           }
-          $('img[class="EddLicenseLoader"]').remove()
         },
         fail: function (response) {
           $this.attr('disabled', false)
