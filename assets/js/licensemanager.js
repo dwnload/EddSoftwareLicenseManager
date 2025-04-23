@@ -28,7 +28,7 @@
         },
         success: function (response) {
           if (typeof response.success !== 'undefined' && response.success) {
-            $this.closest('form').submit()
+            $('input#submit').trigger('click')
           }
           $('img[class="EddLicenseLoader"]').remove()
         },
