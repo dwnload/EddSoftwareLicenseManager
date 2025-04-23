@@ -23,11 +23,8 @@ class CheckLicense extends LicenseStatus
     /** @var  int $site_count */
     private int $site_count;
 
-    /** @var  int $activations_left */
-    private int $activations_left;
-
-    /** @var int $price_id */
-    private int $price_id;
+    /** @var  int|string $activations_left */
+    private int|string $activations_left;
 
     /**
      * @param bool $success
@@ -94,9 +91,9 @@ class CheckLicense extends LicenseStatus
     }
 
     /**
-     * @param int $activations_left
+     * @param int|string $activations_left
      */
-    public function setActivationsLeft(int $activations_left): void
+    public function setActivationsLeft(int|string $activations_left): void
     {
         $this->activations_left = $activations_left;
     }
@@ -104,24 +101,8 @@ class CheckLicense extends LicenseStatus
     /**
      * @return int
      */
-    public function getActivationsLeft(): int
+    public function getActivationsLeft(): int|string
     {
         return $this->activations_left;
-    }
-
-    /**
-     * @param mixed $price_id
-     */
-    public function setPriceId(int $price_id): void
-    {
-        $this->price_id = $price_id;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPriceId(): int
-    {
-        return $this->price_id;
     }
 }

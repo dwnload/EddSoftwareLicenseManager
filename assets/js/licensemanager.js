@@ -3,7 +3,7 @@
   'use strict'
 
   $(document).ready(function () {
-    $('a[id^="EddSoftwareLicenseManagerButton"]:not(:disabled)').on('click', function (e) {
+    $('a[id^="EddSoftwareLicenseManagerButton"]:not(.disabled)').on('click', function (e) {
       e.preventDefault()
       const $this = $(this)
       const $element = $('input[name$="[' + $this.data('plugin_id') + ']"]')
@@ -27,10 +27,14 @@
           $('<img class="EddLicenseLoader" src="' + EddLicenseManager.loading + '" height="16" width="16">').insertAfter($this)
         },
         success: function (response) {
-          if (typeof response.success !== 'undefined' && response.success) {
-            $this.closest('form').submit()
-          }
           $('img[class="EddLicenseLoader"]').remove()
+          if (typeof response.success !== 'undefined' && response.success) {
+            if ($this.data('action') === 'check_license') {
+              window.alert(response.data)
+              return
+            }
+            $('input#submit').trigger('click')
+          }
         },
         fail: function (response) {
           $this.attr('disabled', false)

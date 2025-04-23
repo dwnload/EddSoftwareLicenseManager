@@ -57,7 +57,7 @@ abstract class AbstractLicenceManager
         };
 
         \printf(
-            '<a href="javascript:;" id="EddSoftwareLicenseManagerButton_%3$s" class="button %2$s" data-action="%3$s" data-plugin_id="%5$s" data-status="%4$s">%1$s</a>',
+            '<a id="EddSoftwareLicenseManagerButton_%3$s" class="button %2$s" data-action="%3$s" data-plugin_id="%5$s" data-status="%4$s">%1$s</a>',
             $text,
             $class,
             $action,
