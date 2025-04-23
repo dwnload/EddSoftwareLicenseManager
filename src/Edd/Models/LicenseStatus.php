@@ -23,6 +23,7 @@ abstract class LicenseStatus extends BaseModel
     public const LICENSE_FAILED = 'inactive';
     public const LICENSE_INACTIVE = 'inactive';
     public const LICENSE_INVALID = 'invalid';
+    public const LICENSE_VALID = 'valid';
     public const LICENSE_CHECK_LICENSE = 'check_license';
     public const LICENSE_SITE_INACTIVE = 'site_inactive';
 
