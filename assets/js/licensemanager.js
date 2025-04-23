@@ -3,7 +3,7 @@
   'use strict'
 
   $(document).ready(function () {
-    $('a[id^="EddSoftwareLicenseManagerButton"]:not(:disabled)').on('click', function (e) {
+    $('a[id^="EddSoftwareLicenseManagerButton"]:not(.disabled)').on('click', function (e) {
       e.preventDefault()
       const $this = $(this)
       const $element = $('input[name$="[' + $this.data('plugin_id') + ']"]')
