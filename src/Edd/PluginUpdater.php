@@ -114,7 +114,7 @@ class PluginUpdater implements WpHooksInterface
      * @param object|null $args
      * @return mixed
      */
-    protected function pluginsApiFilter(mixed $result, string $action = '', object $args = null): mixed
+    protected function pluginsApiFilter(mixed $result, string $action = '', ?object $args = null): mixed
     {
         if ('plugin_information' !== $action) {
             return $result;
