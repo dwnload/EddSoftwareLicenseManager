@@ -76,6 +76,7 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface
             ])
         );
 
+        $plugin_id = $this->parent->getSlug();
         $field_manager->addField(
             new SettingField(
                 [
