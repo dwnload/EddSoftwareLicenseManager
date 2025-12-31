@@ -45,7 +45,7 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface
 
     public const string AJAX_ACTION = __CLASS__;
     public const string HANDLE = 'license-manager';
-    public const string VERSION = '2.2.0';
+    public const string VERSION = '2.2.1';
 
     public function addHooks(): void
     {
