@@ -14,6 +14,7 @@ use Dwnload\WpSettingsApi\Settings\SectionManager;
 use Dwnload\WpSettingsApi\WpSettingsApi;
 use TheFrosty\WpUtilities\Api\TransientsTrait;
 use TheFrosty\WpUtilities\Plugin\Plugin;
+use Throwable;
 use function __;
 use function add_query_arg;
 use function date_i18n;
@@ -347,11 +348,16 @@ abstract class AbstractLicenceManager
         );
 
         // Make sure the response came back okay.
-        if (is_wp_error($response)) {
+        $code = wp_remote_retrieve_response_code($response);
+        if (is_wp_error($response) || is_wp_error($code) || $code !== 200) {
             return [];
         }
 
-        return json_decode(wp_remote_retrieve_body($response), true);
+        try {
+            return json_decode(wp_remote_retrieve_body($response), true, 512, JSON_THROW_ON_ERROR);
+        } catch (Throwable) {
+            return [];
+        }
     }
 
     /**
