@@ -4,8 +4,53 @@ declare(strict_types=1);
 
 namespace Dwnload\EddSoftwareLicenseManager\Edd;
 
+use stdClass;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
+use function add_query_arg;
+use function array_keys;
+use function array_merge;
+use function basename;
+use function current_user_can;
+use function delete_option;
+use function do_action;
+use function esc_html;
+use function esc_html__;
+use function esc_html_e;
+use function esc_url;
+use function explode;
+use function get_site_option;
+use function get_site_transient;
+use function implode;
+use function in_array;
+use function is_array;
+use function is_multisite;
+use function is_network_admin;
+use function is_null;
+use function is_numeric;
+use function is_object;
+use function is_ssl;
+use function is_wp_error;
+use function json_decode;
+use function maybe_unserialize;
+use function md5;
+use function plugin_basename;
+use function printf;
+use function self_admin_url;
+use function serialize;
+use function strtotime;
+use function time;
+use function trailingslashit;
+use function update_option;
+use function urlencode;
+use function version_compare;
+use function wp_die;
+use function wp_json_encode;
+use function wp_kses_post;
+use function wp_nonce_url;
+use function wp_remote_post;
+use function wp_remote_retrieve_body;
+use function wp_remote_retrieve_response_code;
 
 // Exit if accessed directly
 if (!defined('ABSPATH')) {
@@ -73,19 +118,17 @@ class PluginUpdater implements WpHooksInterface
 
     /**
      * Check for Updates at the defined API endpoint and modify the update array.
-     *
      * This function dives into the update API just when WordPress creates its update array,
      * then adds a custom API call and injects the custom plugin data retrieved from the API.
      * It is reassembled from parts of the native WordPress plugin update code.
      * See wp-includes/update.php line 121 for the original wp_update_plugins() function.
-     *
      * @param mixed $value Update array build by WordPress.
-     * @return array|\stdClass Modified update array with custom plugin data.
+     * @return array|stdClass Modified update array with custom plugin data.
      */
-    protected function checkUpdate(mixed $value): array|\stdClass
+    protected function checkUpdate(mixed $value): array|stdClass
     {
         if (!is_object($value)) {
-            $value = new \stdClass();
+            $value = new stdClass();
         }
 
         if (!empty($value->response) && !empty($value->response[$this->name]) && false === $this->wp_override) {
@@ -120,7 +163,7 @@ class PluginUpdater implements WpHooksInterface
             return $result;
         }
 
-        if (!isset($args->slug) || $args->slug !== $this->slug) {
+        if (is_null($args) || !isset($args->slug) || $args->slug !== $this->slug) {
             return $result;
         }
 
@@ -175,7 +218,7 @@ class PluginUpdater implements WpHooksInterface
 
         return $result;
     }
-    
+
     /**
      * Show the update notification on multisite subsites.
      * @param string $file
@@ -202,14 +245,14 @@ class PluginUpdater implements WpHooksInterface
 
         if (!isset($update_cache->response[$this->name])) {
             if (!is_object($update_cache)) {
-                $update_cache = new \stdClass();
+                $update_cache = new stdClass();
             }
             $update_cache->response[$this->name] = $this->getRepoApiData();
         }
 
         // Return early if this plugin isn't in the transient->response or if the site is running the current or newer version of the plugin.
         if (
-            empty($update_cache->response[$this->name]) || 
+            empty($update_cache->response[$this->name]) ||
             version_compare($this->version, $update_cache->response[$this->name]->new_version, '>=')
         ) {
             return;
@@ -513,7 +556,7 @@ class PluginUpdater implements WpHooksInterface
             'author' => $this->api_data['author'],
             'url' => home_url(),
             'beta' => $this->beta,
-            'php_version' => phpversion(),
+            'php_version' => PHP_VERSION,
             'wp_version' => get_bloginfo('version'),
         ];
 
