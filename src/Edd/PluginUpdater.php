@@ -34,7 +34,6 @@ use function is_wp_error;
 use function json_decode;
 use function maybe_unserialize;
 use function md5;
-use function phpversion;
 use function plugin_basename;
 use function printf;
 use function self_admin_url;
