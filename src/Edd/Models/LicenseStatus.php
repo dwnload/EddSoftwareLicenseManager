@@ -14,18 +14,18 @@ use TheFrosty\WpUtilities\Models\BaseModel;
 abstract class LicenseStatus extends BaseModel
 {
 
-    public const LICENSE_ACTIVE = 'active';
-    public const LICENSE_ACTIVATE = 'activate';
-    public const LICENSE_DISABLED = 'disabled';
-    public const LICENSE_DEACTIVATE = 'deactivate';
-    public const LICENSE_DEACTIVATED = 'deactivated';
-    public const LICENSE_EXPIRED = 'expired';
-    public const LICENSE_FAILED = 'inactive';
-    public const LICENSE_INACTIVE = 'inactive';
-    public const LICENSE_INVALID = 'invalid';
-    public const LICENSE_VALID = 'valid';
-    public const LICENSE_CHECK_LICENSE = 'check_license';
-    public const LICENSE_SITE_INACTIVE = 'site_inactive';
+    public const string LICENSE_ACTIVE = 'active';
+    public const string LICENSE_ACTIVATE = 'activate';
+    public const string LICENSE_DISABLED = 'disabled';
+    public const string LICENSE_DEACTIVATE = 'deactivate';
+    public const string LICENSE_DEACTIVATED = 'deactivated';
+    public const string LICENSE_EXPIRED = 'expired';
+    public const string LICENSE_FAILED = 'inactive';
+    public const string LICENSE_INACTIVE = 'inactive';
+    public const string LICENSE_INVALID = 'invalid';
+    public const string LICENSE_VALID = 'valid';
+    public const string LICENSE_CHECK_LICENSE = 'check_license';
+    public const string LICENSE_SITE_INACTIVE = 'site_inactive';
 
     /** @var  string $license */
     private string $license = '';
