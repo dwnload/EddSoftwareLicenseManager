@@ -29,6 +29,7 @@ use function strcasecmp;
 use function strtotime;
 use function time;
 use function trim;
+use function untrailingslashit;
 use function update_option;
 use function wp_get_environment_type;
 use function wp_remote_post;
@@ -361,7 +362,7 @@ abstract class AbstractLicenceManager
      */
     private function getRenewalUrl(string $license_key = '', ?int $item_id = null): string
     {
-        if (!empty($license_key) || !empty($item_id)) {
+        if (!empty($license_key) || $item_id !== null) {
             return add_query_arg(
                 [
                     'edd_license' => $license_key,
@@ -370,7 +371,7 @@ abstract class AbstractLicenceManager
                     'utm_medium' => 'edd-software-licence',
                     'utm_campaign' => 'licence',
                 ],
-                sprintf('%s/checkout/', \untrailingslashit($this->pluginData->getApiUrl()))
+                sprintf('%s/checkout/', untrailingslashit($this->pluginData->getApiUrl()))
             );
         }
 
