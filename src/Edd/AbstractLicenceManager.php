@@ -14,6 +14,7 @@ use Dwnload\WpSettingsApi\Settings\SectionManager;
 use Dwnload\WpSettingsApi\WpSettingsApi;
 use TheFrosty\WpUtilities\Api\TransientsTrait;
 use TheFrosty\WpUtilities\Plugin\Plugin;
+use Throwable;
 use function __;
 use function add_query_arg;
 use function date_i18n;
@@ -29,6 +30,7 @@ use function strcasecmp;
 use function strtotime;
 use function time;
 use function trim;
+use function untrailingslashit;
 use function update_option;
 use function wp_get_environment_type;
 use function wp_remote_post;
@@ -346,11 +348,16 @@ abstract class AbstractLicenceManager
         );
 
         // Make sure the response came back okay.
-        if (is_wp_error($response)) {
+        $code = wp_remote_retrieve_response_code($response);
+        if (is_wp_error($response) || is_wp_error($code) || $code !== 200) {
             return [];
         }
 
-        return json_decode(wp_remote_retrieve_body($response), true);
+        try {
+            return json_decode(wp_remote_retrieve_body($response), true, 512, JSON_THROW_ON_ERROR);
+        } catch (Throwable) {
+            return [];
+        }
     }
 
     /**
@@ -361,7 +368,7 @@ abstract class AbstractLicenceManager
      */
     private function getRenewalUrl(string $license_key = '', ?int $item_id = null): string
     {
-        if (!empty($license_key) || !empty($item_id)) {
+        if (!empty($license_key) || $item_id !== null) {
             return add_query_arg(
                 [
                     'edd_license' => $license_key,
@@ -370,7 +377,7 @@ abstract class AbstractLicenceManager
                     'utm_medium' => 'edd-software-licence',
                     'utm_campaign' => 'licence',
                 ],
-                sprintf('%s/checkout/', \untrailingslashit($this->pluginData->getApiUrl()))
+                sprintf('%s/checkout/', untrailingslashit($this->pluginData->getApiUrl()))
             );
         }
 

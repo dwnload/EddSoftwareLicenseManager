@@ -30,6 +30,7 @@ Now run:
 ```php
 $license = \get_option(\Dwnload\EddSoftwareLicenseManager\Edd\AbstractLicenceManager::LICENSE_SETTING, []);
 $data = [
+    'api_url' => 'https://frosty.media/',
     'license' => $license[$plugin_id]['license'] ?? '',
     'item_name' => 'Custom Login Style Pack #1', // Name of this plugin (matching your EDD Download title).
     'author' => 'Frosty Media',
@@ -38,6 +39,6 @@ $data = [
 ];
 \TheFrosty\WpUtilities\Plugin\Plugin $plugin
     ->add(new Edd\LicenseManager($plugin, $data))
-    ->add(new Edd\PluginUpdater('https://frosty.media/', __FILE__, $data))
+    ->add(new Edd\PluginUpdater($data['api_url'], __FILE__, $data))
 ->initialize();
 ```
