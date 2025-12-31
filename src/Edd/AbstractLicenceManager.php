@@ -15,6 +15,24 @@ use Dwnload\WpSettingsApi\WpSettingsApi;
 use TheFrosty\WpUtilities\Api\TransientsTrait;
 use TheFrosty\WpUtilities\Plugin\Plugin;
 use function __;
+use function add_query_arg;
+use function date_i18n;
+use function delete_transient;
+use function esc_url;
+use function get_option;
+use function is_wp_error;
+use function json_decode;
+use function printf;
+use function rawurlencode;
+use function sprintf;
+use function strcasecmp;
+use function strtotime;
+use function time;
+use function trim;
+use function update_option;
+use function wp_get_environment_type;
+use function wp_remote_post;
+use function wp_remote_retrieve_body;
 
 /**
  * Class AbstractLicenceManager
@@ -25,11 +43,11 @@ abstract class AbstractLicenceManager
 
     use TransientsTrait;
 
-    public const ACTIVATE_LICENCE = 'activate_license';
-    public const CHECK_LICENCE = 'check_license';
-    public const DEACTIVATE_LICENCE = 'deactivate_license';
-    public const TRANSIENT_PREFIX = 'dwnload_edd_slm_';
-    public const LICENSE_SETTING = 'dwnload_license_data';
+    public const string ACTIVATE_LICENCE = 'activate_license';
+    public const string CHECK_LICENCE = 'check_license';
+    public const string DEACTIVATE_LICENCE = 'deactivate_license';
+    public const string TRANSIENT_PREFIX = 'dwnload_edd_slm_';
+    public const string LICENSE_SETTING = 'dwnload_license_data';
     protected PluginData $pluginData;
 
     /**
@@ -58,7 +76,7 @@ abstract class AbstractLicenceManager
             default => 'Unknown',
         };
 
-        \printf(
+        printf(
             '<a id="EddSoftwareLicenseManagerButton_%3$s" class="button %2$s" data-action="%3$s" data-plugin_id="%5$s" data-status="%4$s">%1$s</a>',
             $text,
             $class,
@@ -146,13 +164,13 @@ abstract class AbstractLicenceManager
 
         if ($response->isValidResponse()) {
             $key = $this->getTransientKey($plugin_id . '_license_message', self::TRANSIENT_PREFIX);
-            $option = \get_option(self::LICENSE_SETTING, []);
+            $option = get_option(self::LICENSE_SETTING, []);
             $option[$plugin_id]['license'] = trim($license);
             $option[$plugin_id]['expires'] = trim($response->getExpires());
             $option[$plugin_id]['status'] = trim($response->getLicense());
 
-            \update_option(self::LICENSE_SETTING, $option);
-            \delete_transient($key);
+            update_option(self::LICENSE_SETTING, $option);
+            delete_transient($key);
 
             return $option;
         }
@@ -188,8 +206,8 @@ abstract class AbstractLicenceManager
             $option[$plugin_id]['expires'] = trim($response->getExpires());
             $option[$plugin_id]['status'] = trim($response->getLicense());
 
-            \update_option(self::LICENSE_SETTING, $option);
-            \delete_transient($key);
+            update_option(self::LICENSE_SETTING, $option);
+            delete_transient($key);
 
             return $option;
         }
@@ -228,12 +246,11 @@ abstract class AbstractLicenceManager
         }
 
         $expires = date_i18n(get_option('date_format'), strtotime($response->getExpires()));
-        $renew_link = \sprintf(
+        $renew_link = sprintf(
             '<a href="%1$s" target="_blank">%2$s</a>',
             esc_url($this->getRenewalUrl($license, $this->pluginData->getItemId())),
             $this->getStrings()['renew']
         );
-
 
         // Unlimited ??
         if ($response->getLicenseLimit() === 0) {
@@ -274,8 +291,8 @@ abstract class AbstractLicenceManager
 
         if ($update_option) {
             if (!empty($status) && $status !== $option[$plugin_id]['status']) {
-                \update_option(self::LICENSE_SETTING, $option);
-                \delete_transient($key);
+                update_option(self::LICENSE_SETTING, $option);
+                delete_transient($key);
             }
         }
 
@@ -319,8 +336,8 @@ abstract class AbstractLicenceManager
      */
     private function getApiResponse(array $api_params): array
     {
-        $response = \wp_remote_post(
-            \esc_url($this->pluginData->getApiUrl()),
+        $response = wp_remote_post(
+            esc_url($this->pluginData->getApiUrl()),
             [
                 'timeout' => 15,
                 'sslverify' => true,
@@ -329,11 +346,11 @@ abstract class AbstractLicenceManager
         );
 
         // Make sure the response came back okay.
-        if (\is_wp_error($response)) {
+        if (is_wp_error($response)) {
             return [];
         }
 
-        return \json_decode(\wp_remote_retrieve_body($response), true);
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
@@ -345,7 +362,7 @@ abstract class AbstractLicenceManager
     private function getRenewalUrl(string $license_key = '', ?int $item_id = null): string
     {
         if (!empty($license_key) || !empty($item_id)) {
-            return \add_query_arg(
+            return add_query_arg(
                 [
                     'edd_license' => $license_key,
                     'download_id' => $item_id,
@@ -353,7 +370,7 @@ abstract class AbstractLicenceManager
                     'utm_medium' => 'edd-software-licence',
                     'utm_campaign' => 'licence',
                 ],
-                \sprintf('%s/checkout/', \untrailingslashit($this->pluginData->getApiUrl()))
+                sprintf('%s/checkout/', \untrailingslashit($this->pluginData->getApiUrl()))
             );
         }
 
