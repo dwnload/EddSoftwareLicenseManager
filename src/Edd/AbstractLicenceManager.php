@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Dwnload\EddSoftwareLicenseManager\Edd;
 
 use Dwnload\EddSoftwareLicenseManager\Edd\Models\ActivateLicense;
