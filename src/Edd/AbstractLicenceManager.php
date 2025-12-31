@@ -53,7 +53,7 @@ abstract class AbstractLicenceManager
     /**
      * AbstractLicenceManager constructor.
      * @param Plugin $parent
-     * @param array $data
+     * @param array $data PluginData array
      */
     public function __construct(protected Plugin $parent, array $data)
     {
