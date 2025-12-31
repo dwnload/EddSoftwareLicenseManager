@@ -244,7 +244,7 @@ abstract class AbstractLicenceManager
 
         // If response doesn't include license data, return
         if (!$response->isValidResponse()) {
-            return $this->getStrings()['license-unknown'];
+            return $this->getStrings()['license-status-unknown'];
         }
 
         $expires = date_i18n(get_option('date_format'), strtotime($response->getExpires()));
