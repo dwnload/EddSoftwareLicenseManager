@@ -87,6 +87,9 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface
                     ),
                     SettingField::TYPE => FieldTypes::FIELD_TYPE_TEXT,
                     SettingField::DESC => include dirname(__DIR__, 2) . '/views/license.php',
+                    SettingField::ATTRIBUTES => [
+                        'pattern' => '^[a-fA-F0-9]{32}$',
+                    ],
                     SettingField::SECTION_ID => $section_id,
                 ]
             )

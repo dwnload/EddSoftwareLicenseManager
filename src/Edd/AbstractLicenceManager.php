@@ -90,7 +90,6 @@ abstract class AbstractLicenceManager
 
     /**
      * Get an array of translation strings.
-     *
      * @return array
      */
     public function getStrings(): array
@@ -141,7 +140,6 @@ abstract class AbstractLicenceManager
 
     /**
      * Activates the license key.
-     *
      * @param string $license The incoming POST license key
      * @param string $plugin_id
      * @param int $item_id
@@ -182,7 +180,6 @@ abstract class AbstractLicenceManager
 
     /**
      * Deactivates the license key.
-     *
      * @param string $license The incoming POST license key
      * @param string $plugin_id
      * @param int $item_id
@@ -219,7 +216,6 @@ abstract class AbstractLicenceManager
 
     /**
      * Checks if license is valid and gets expire date.
-     *
      * @param string $license The incoming POST license key
      * @param string $plugin_id
      * @param bool $update_option
@@ -339,9 +335,14 @@ abstract class AbstractLicenceManager
     private function getApiResponse(array $api_params): array
     {
         $defaults = [
-            'timeout' => 15,
+            'timeout' => 10,
             'sslverify' => true,
             'body' => $api_params,
+            'user-agent' => sprintf(
+                'EddLicenseManager/%s; %s',
+                LicenseManager::VERSION,
+                esc_url(get_bloginfo('url'))
+            ),
         ];
         $args = (array)apply_filters('dwnload_api_remote_post_args', []);
         $args = wp_parse_args($args, $defaults);
