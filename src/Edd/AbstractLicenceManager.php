@@ -338,14 +338,14 @@ abstract class AbstractLicenceManager
      */
     private function getApiResponse(array $api_params): array
     {
-        $response = wp_remote_post(
-            esc_url($this->pluginData->getApiUrl()),
-            [
-                'timeout' => 15,
-                'sslverify' => true,
-                'body' => $api_params,
-            ]
-        );
+        $defaults = [
+            'timeout' => 15,
+            'sslverify' => true,
+            'body' => $api_params,
+        ];
+        $args = (array)apply_filters('dwnload_api_remote_post_args', []);
+        $args = wp_parse_args($args, $defaults);
+        $response = wp_remote_post(esc_url($this->pluginData->getApiUrl()), $args);
 
         // Make sure the response came back okay.
         $code = wp_remote_retrieve_response_code($response);
