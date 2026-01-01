@@ -19,9 +19,13 @@ $license_data = get_option(AbstractLicenceManager::LICENSE_SETTING, []);
 $license_expires = $license_data[$plugin_id]['expires'] ?? '';
 $license_status = $license_data[$plugin_id]['status'] ?? LicenseStatus::LICENSE_INACTIVE;
 $active_or_valid = in_array($license_status, [LicenseStatus::LICENSE_ACTIVE, LicenseStatus::LICENSE_VALID], true);
+$now_expired = !empty($license_expires) && (time() - strtotime($license_expires)) > MINUTE_IN_SECONDS;
 ob_start();
 
 echo "<div class='EddSoftwareLicenseManager'>";
+if ($now_expired) {
+    echo '<span class="dashicons dashicons-warning"></span>&nbsp;';
+}
 printf('License Status: <span class="license-status %1$s">%1$s</span>', $license_status);
 if (!empty($license_expires)) {
     printf(
@@ -50,7 +54,7 @@ $this->buildSubmitButton(
     $license_status,
 );
 
-if (!$active_or_valid) {
+if (!$active_or_valid || $now_expired) {
     echo '&nbsp;&nbsp;';
     $this->buildSubmitButton(
         $plugin_id,
