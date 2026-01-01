@@ -284,6 +284,7 @@ abstract class AbstractLicenceManager
 
         $option = get_option(self::LICENSE_SETTING, []);
         $status = $option[$plugin_id]['status'] ?? '';
+        $option[$plugin_id]['expires'] = trim($response->getExpires());
         $option[$plugin_id]['status'] = $response->getLicense();
         $key = $this->getTransientKey($this->pluginData->getItemId() . '_license_message', self::TRANSIENT_PREFIX);
 
