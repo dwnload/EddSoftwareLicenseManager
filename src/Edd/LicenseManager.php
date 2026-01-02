@@ -60,7 +60,7 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface
         $this->addAction('wp_ajax_' . sanitize_key(self::AJAX_ACTION), [$this, 'licenseAjax']);
         $this->addAction('wp', [$this, 'scheduleEvents']);
         $this->addFilter('cron_schedules', [$this, 'maybeAddSchedule']);
-        $this->addAction(self::HOOK_WEEKLY, [$this, 'cron'], 10, 2);
+        $this->addAction(self::HOOK_WEEKLY, [$this, 'cron']);
     }
 
     /**
@@ -197,7 +197,7 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface
     protected function scheduleEvents(): void
     {
         if (!wp_next_scheduled(self::HOOK_WEEKLY)) {
-            wp_schedule_event(current_time('timestamp'), 'weekly', self::HOOK_WEEKLY);
+            wp_schedule_event(current_time('timestamp'), 'weekly', self::HOOK_WEEKLY, [$this->parent->getSlug()]);
         }
     }
 
@@ -221,14 +221,13 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface
     /**
      * Cron callback.
      */
-    protected function cron(): void
+    protected function cron(string $plugin_id): void
     {
-        $settings = get_option(self::LICENSE_SETTING, []);
-        $plugin_id = $this->parent->getSlug();
-        if (!empty($settings[$plugin_id])) {
+        $data = License::getLicenseData();
+        if (empty($data[$plugin_id]) || empty($data[$plugin_id]['license'])) {
             return;
         }
-        $license_key = $settings[$plugin_id]['license'] ?? '';
+        $license_key = $data[$plugin_id]['license'];
         $this->checkLicense($license_key, $plugin_id, true);
     }
 }
