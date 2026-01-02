@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Dwnload\EddSoftwareLicenseManager\Edd;
 
 use Dwnload\EddSoftwareLicenseManager\Edd\Models\LicenseStatus;
-use Dwnload\WpSettingsApi\Api\Options;
 use function in_array;
 use function sanitize_text_field;
 use function strtotime;
@@ -48,6 +47,17 @@ class License
     }
 
     /**
+     * Get the current plugin's license key.
+     * @param string $plugin_id The plugin slug.
+     * @return string
+     */
+    public static function getLicenseKey(string $plugin_id): string
+    {
+        $data = self::getLicenseData();
+        return sanitize_text_field($data[$plugin_id]['license'] ?? '');
+    }
+
+    /**
      * Get the current plugin's license status.
      * @param string $plugin_id The plugin slug.
      * @return string
@@ -56,11 +66,6 @@ class License
     {
         $data = self::getLicenseData();
         return sanitize_text_field($data[$plugin_id]['status'] ?? LicenseStatus::LICENSE_INACTIVE);
-    }
-
-    public static function getLicenseKey(string $plugin_id, string $section_id): string
-    {
-        return sanitize_text_field(Options::getOption($plugin_id, $section_id));
     }
 
     /**
