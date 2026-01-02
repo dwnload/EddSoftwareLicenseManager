@@ -16,22 +16,22 @@ To install this package, edit your `composer.json` file:
 ```json
 {
     "require": {
-        "dwnload/edd-software-license-manager": "^2.0"
+        "dwnload/edd-software-license-manager": "^2.3"
     }
 }
 ```
 
-Now run:
+Or run:
 
-`$ composer install dwnload/edd-software-license-manager`
+`$ composer require dwnload/edd-software-license-manager`
 
 ### How to use this package
 
 ```php
-$license = \get_option(\Dwnload\EddSoftwareLicenseManager\Edd\AbstractLicenceManager::LICENSE_SETTING, []);
+use Dwnload\EddSoftwareLicenseManager\Edd\License;
 $data = [
     'api_url' => 'https://frosty.media/',
-    'license' => $license[$plugin_id]['license'] ?? '',
+    'license' => License::getLicenseKey($plugin_id),
     'item_name' => 'Custom Login Style Pack #1', // Name of this plugin (matching your EDD Download title).
     'author' => 'Frosty Media',
     'item_id' => (int),
