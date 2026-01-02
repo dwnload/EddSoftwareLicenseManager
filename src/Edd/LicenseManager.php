@@ -52,7 +52,7 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface
     public const string AJAX_ACTION = __CLASS__;
     public const string HANDLE = 'license-manager';
     public const string HOOK_WEEKLY = 'edd_license_manager_weekly_scheduled_events';
-    public const string VERSION = '2.2.1';
+    public const string VERSION = '2.3.0';
 
     public function addHooks(): void
     {
