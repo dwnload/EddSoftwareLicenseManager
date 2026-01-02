@@ -31,7 +31,6 @@ use function strtotime;
 use function time;
 use function trim;
 use function untrailingslashit;
-use function update_option;
 use function wp_get_environment_type;
 use function wp_remote_post;
 use function wp_remote_retrieve_body;
@@ -164,12 +163,12 @@ abstract class AbstractLicenceManager
 
         if ($response->isValidResponse()) {
             $key = $this->getTransientKey($plugin_id . '_license_message', self::TRANSIENT_PREFIX);
-            $option = get_option(self::LICENSE_SETTING, []);
+            $option = License::getLicenseData();
             $option[$plugin_id]['license'] = trim($license);
             $option[$plugin_id]['expires'] = trim($response->getExpires());
             $option[$plugin_id]['status'] = trim($response->getLicense());
 
-            update_option(self::LICENSE_SETTING, $option);
+            License::updateData($option);
             delete_transient($key);
 
             return $option;
@@ -200,12 +199,12 @@ abstract class AbstractLicenceManager
 
         if ($response->isValidResponse()) {
             $key = $this->getTransientKey($plugin_id . '_license_message', self::TRANSIENT_PREFIX);
-            $option = get_option(self::LICENSE_SETTING, []);
+            $option = License::getLicenseData();
             $option[$plugin_id]['license'] = trim($license);
             $option[$plugin_id]['expires'] = trim($response->getExpires());
             $option[$plugin_id]['status'] = trim($response->getLicense());
 
-            update_option(self::LICENSE_SETTING, $option);
+            License::updateData($option);
             delete_transient($key);
 
             return $option;
@@ -282,14 +281,15 @@ abstract class AbstractLicenceManager
             $message = $this->getStrings()['license-status-unknown'];
         }
 
-        $option = get_option(self::LICENSE_SETTING, []);
+        $option = License::getLicenseData();
         $status = $option[$plugin_id]['status'] ?? '';
+        $option[$plugin_id]['expires'] = trim($response->getExpires());
         $option[$plugin_id]['status'] = $response->getLicense();
         $key = $this->getTransientKey($this->pluginData->getItemId() . '_license_message', self::TRANSIENT_PREFIX);
 
         if ($update_option) {
             if (!empty($status) && $status !== $option[$plugin_id]['status']) {
-                update_option(self::LICENSE_SETTING, $option);
+                License::updateData($option);
                 delete_transient($key);
             }
         }

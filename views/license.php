@@ -2,26 +2,28 @@
 
 declare(strict_types=1);
 
-use Dwnload\EddSoftwareLicenseManager\Edd\AbstractLicenceManager;
+use Dwnload\EddSoftwareLicenseManager\Edd\License;
 use Dwnload\EddSoftwareLicenseManager\Edd\LicenseManager;
 use Dwnload\EddSoftwareLicenseManager\Edd\Models\LicenseStatus;
-use Dwnload\WpSettingsApi\Api\Options;
 
 if (!($this instanceof LicenseManager)) {
     wp_die();
 }
 
-if (!isset($plugin_id, $section_id)) {
+if (!isset($plugin_id)) {
     return;
 }
-$license_key = Options::getOption($plugin_id, $section_id);
-$license_data = get_option(AbstractLicenceManager::LICENSE_SETTING, []);
-$license_expires = $license_data[$plugin_id]['expires'] ?? '';
-$license_status = $license_data[$plugin_id]['status'] ?? LicenseStatus::LICENSE_INACTIVE;
-$active_or_valid = in_array($license_status, [LicenseStatus::LICENSE_ACTIVE, LicenseStatus::LICENSE_VALID], true);
+
+$license_expires = License::getLicenseExpires($plugin_id);
+$license_status = License::getLicenseStatus($plugin_id);
+$active_or_valid = License::isActiveValid($plugin_id);
+$is_expired = License::isExpired($plugin_id);
 ob_start();
 
 echo "<div class='EddSoftwareLicenseManager'>";
+if ($is_expired) {
+    echo '<span class="dashicons dashicons-warning"></span>&nbsp;';
+}
 printf('License Status: <span class="license-status %1$s">%1$s</span>', $license_status);
 if (!empty($license_expires)) {
     printf(
@@ -50,7 +52,7 @@ $this->buildSubmitButton(
     $license_status,
 );
 
-if (!$active_or_valid) {
+if (!$active_or_valid || $is_expired) {
     echo '&nbsp;&nbsp;';
     $this->buildSubmitButton(
         $plugin_id,

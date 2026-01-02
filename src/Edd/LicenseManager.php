@@ -16,9 +16,12 @@ use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
 use function __;
 use function admin_url;
 use function apply_filters;
+use function array_key_exists;
 use function check_ajax_referer;
+use function current_time;
 use function defined;
 use function dirname;
+use function esc_html__;
 use function plugin_basename;
 use function plugins_url;
 use function sanitize_key;
@@ -29,10 +32,13 @@ use function wp_create_nonce;
 use function wp_enqueue_script;
 use function wp_enqueue_style;
 use function wp_localize_script;
+use function wp_next_scheduled;
+use function wp_schedule_event;
 use function wp_send_json_error;
 use function wp_send_json_success;
 use function wp_unslash;
 use const SCRIPT_DEBUG;
+use const WEEK_IN_SECONDS;
 
 /**
  * Class LicenseManager
@@ -45,12 +51,16 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface
 
     public const string AJAX_ACTION = __CLASS__;
     public const string HANDLE = 'license-manager';
+    public const string HOOK_WEEKLY = 'edd_license_manager_weekly_scheduled_events';
     public const string VERSION = '2.2.1';
 
     public function addHooks(): void
     {
         $this->addAction(WpSettingsApi::HOOK_INIT, [$this, 'init'], 299, 3);
         $this->addAction('wp_ajax_' . sanitize_key(self::AJAX_ACTION), [$this, 'licenseAjax']);
+        $this->addAction('wp', [$this, 'scheduleEvents']);
+        $this->addFilter('cron_schedules', [$this, 'maybeAddSchedule']);
+        $this->addAction(self::HOOK_WEEKLY, [$this, 'cron']);
     }
 
     /**
@@ -179,5 +189,45 @@ class LicenseManager extends AbstractLicenceManager implements WpHooksInterface
         }
 
         wp_send_json_error();
+    }
+
+    /**
+     * Schedules cron events.
+     */
+    protected function scheduleEvents(): void
+    {
+        if (!wp_next_scheduled(self::HOOK_WEEKLY)) {
+            wp_schedule_event(current_time('timestamp'), 'weekly', self::HOOK_WEEKLY, [$this->parent->getSlug()]);
+        }
+    }
+
+    /**
+     * Registers a new cron schedule "weekly" if it doesn't exist.
+     * @param array $schedules
+     * @return array
+     */
+    protected function maybeAddSchedule(array $schedules = []): array
+    {
+        if (!array_key_exists('weekly', $schedules)) {
+            $schedules['weekly'] = [
+                'interval' => WEEK_IN_SECONDS,
+                'display' => esc_html__('Once Weekly', 'edd-software-license-manager'),
+            ];
+        }
+
+        return $schedules;
+    }
+
+    /**
+     * Cron callback.
+     */
+    protected function cron(string $plugin_id): void
+    {
+        $data = License::getLicenseData();
+        if (empty($data[$plugin_id]) || empty($data[$plugin_id]['license'])) {
+            return;
+        }
+        $license_key = $data[$plugin_id]['license'];
+        $this->checkLicense($license_key, $plugin_id, true);
     }
 }

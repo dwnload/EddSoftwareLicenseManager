@@ -30,7 +30,7 @@
           $('img[class="EddLicenseLoader"]').remove()
           if (typeof response.success !== 'undefined' && response.success) {
             if ($this.data('action') === 'check_license') {
-              window.alert(response.data)
+              $('.EddSoftwareLicenseManager').next().html(response.data)
               return
             }
             $('input#submit').trigger('click')
