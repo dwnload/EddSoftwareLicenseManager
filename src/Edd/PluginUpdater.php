@@ -38,6 +38,7 @@ use function plugin_basename;
 use function printf;
 use function self_admin_url;
 use function serialize;
+use function sprintf;
 use function strtotime;
 use function time;
 use function trailingslashit;
@@ -580,10 +581,15 @@ class PluginUpdater implements WpHooksInterface
                 'timeout' => 15,
                 'sslverify' => $this->verifySsl(),
                 'body' => $api_params,
+                'user-agent' => sprintf(
+                    'EddLicenseManager/%s; %s',
+                    LicenseManager::VERSION,
+                    esc_url(get_bloginfo('url'))
+                ),
             ]
         );
 
-        if (is_wp_error($request) || (200 !== wp_remote_retrieve_response_code($request))) {
+        if (is_wp_error($request) || (wp_remote_retrieve_response_code($request) !== 200)) {
             $this->logFailedRequest();
 
             return false;
