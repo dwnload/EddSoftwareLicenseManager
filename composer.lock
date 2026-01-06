@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6dba78a00a78e85a8188aa140d73b569",
+    "content-hash": "98d9252a4814c80d3cc864a09e115e06",
     "packages": [
         {
             "name": "composer/installers",
@@ -915,16 +915,16 @@
         },
         {
             "name": "thefrosty/wp-utilities",
-            "version": "v3.8.9",
+            "version": "v3.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thefrosty/wp-utilities.git",
-                "reference": "9fec3d2f8f2550b28a0557df66fb1cc9af2e34ba"
+                "reference": "8a687cada4ba23b444b77fc4d08894bfa9bb83d9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thefrosty/wp-utilities/zipball/9fec3d2f8f2550b28a0557df66fb1cc9af2e34ba",
-                "reference": "9fec3d2f8f2550b28a0557df66fb1cc9af2e34ba",
+                "url": "https://api.github.com/repos/thefrosty/wp-utilities/zipball/8a687cada4ba23b444b77fc4d08894bfa9bb83d9",
+                "reference": "8a687cada4ba23b444b77fc4d08894bfa9bb83d9",
                 "shasum": ""
             },
             "require": {
@@ -982,9 +982,9 @@
             "description": "A library containing my standard development resources",
             "support": {
                 "issues": "https://github.com/thefrosty/wp-utilities/issues",
-                "source": "https://github.com/thefrosty/wp-utilities/tree/v3.8.9"
+                "source": "https://github.com/thefrosty/wp-utilities/tree/v3.9.1"
             },
-            "time": "2025-12-31T18:41:05+00:00"
+            "time": "2026-01-04T16:25:55+00:00"
         }
     ],
     "packages-dev": [
@@ -3416,5 +3416,5 @@
     "platform-overrides": {
         "php": "8.3"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
