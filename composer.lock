@@ -7,6 +7,59 @@
     "content-hash": "98d9252a4814c80d3cc864a09e115e06",
     "packages": [
         {
+            "name": "blakvghost/php-validator",
+            "version": "v2.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/BlakvGhost/PHPValidator.git",
+                "reference": "83aa4e1a518ae51b3491590745a7a0dc7958f9ae"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/BlakvGhost/PHPValidator/zipball/83aa4e1a518ae51b3491590745a7a0dc7958f9ae",
+                "reference": "83aa4e1a518ae51b3491590745a7a0dc7958f9ae",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "pestphp/pest": "^2.24"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "BlakvGhost\\PHPValidator\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kabirou ALASSANE",
+                    "email": "kabirou.alassane@ferraydigitalsolutions.bj",
+                    "homepage": "https://github.com/BlakvGhost",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHPValidator is a modern PHP library for data validation in your PHP applications. It provides a flexible and extensible way to validate data using predefined rules or by creating custom validation rules.",
+            "keywords": [
+                "PHP Library",
+                "custom validation",
+                "data validation",
+                "php",
+                "validation",
+                "validation rules"
+            ],
+            "support": {
+                "issues": "https://github.com/BlakvGhost/PHPValidator/issues",
+                "source": "https://github.com/BlakvGhost/PHPValidator/tree/v2.3.1"
+            },
+            "time": "2025-12-04T18:08:21+00:00"
+        },
+        {
             "name": "composer/installers",
             "version": "v2.3.0",
             "source": {
@@ -215,16 +268,16 @@
         },
         {
             "name": "jjgrainger/posttypes",
-            "version": "v2.2.1",
+            "version": "v2.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jjgrainger/PostTypes.git",
-                "reference": "2f20f628ec44404960df4b1ae5d623397a66aec1"
+                "reference": "f5d5812992fe204409d585d936c7c110b8d23773"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jjgrainger/PostTypes/zipball/2f20f628ec44404960df4b1ae5d623397a66aec1",
-                "reference": "2f20f628ec44404960df4b1ae5d623397a66aec1",
+                "url": "https://api.github.com/repos/jjgrainger/PostTypes/zipball/f5d5812992fe204409d585d936c7c110b8d23773",
+                "reference": "f5d5812992fe204409d585d936c7c110b8d23773",
                 "shasum": ""
             },
             "require": {
@@ -260,20 +313,20 @@
                 "issues": "https://github.com/jjgrainger/posttypes/issues",
                 "source": "https://github.com/jjgrainger/posttypes"
             },
-            "time": "2024-10-13T17:23:48+00:00"
+            "time": "2026-01-25T17:36:17+00:00"
         },
         {
             "name": "johnbillion/args",
-            "version": "2.2.3",
+            "version": "2.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/johnbillion/args.git",
-                "reference": "bc5d16c148ea92efbbb9b8649c3703c568cf0b5b"
+                "reference": "e9191ea6412aace08a7208506f8155d088ae7adc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/johnbillion/args/zipball/bc5d16c148ea92efbbb9b8649c3703c568cf0b5b",
-                "reference": "bc5d16c148ea92efbbb9b8649c3703c568cf0b5b",
+                "url": "https://api.github.com/repos/johnbillion/args/zipball/e9191ea6412aace08a7208506f8155d088ae7adc",
+                "reference": "e9191ea6412aace08a7208506f8155d088ae7adc",
                 "shasum": ""
             },
             "require": {
@@ -561,7 +614,7 @@
             "description": "I don't want to get into an argument about this.",
             "support": {
                 "issues": "https://github.com/johnbillion/args/issues",
-                "source": "https://github.com/johnbillion/args/tree/2.2.3"
+                "source": "https://github.com/johnbillion/args/tree/2.3.1"
             },
             "funding": [
                 {
@@ -569,7 +622,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-12-03T21:58:39+00:00"
+            "time": "2026-01-27T15:30:52+00:00"
         },
         {
             "name": "oscarotero/env",
@@ -748,16 +801,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v7.4.3",
+            "version": "v7.4.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "a70c745d4cea48dbd609f4075e5f5cbce453bd52"
+                "reference": "977a554a34cf8edc95ca351fbecb1bb1ad05cc94"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/a70c745d4cea48dbd609f4075e5f5cbce453bd52",
-                "reference": "a70c745d4cea48dbd609f4075e5f5cbce453bd52",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/977a554a34cf8edc95ca351fbecb1bb1ad05cc94",
+                "reference": "977a554a34cf8edc95ca351fbecb1bb1ad05cc94",
                 "shasum": ""
             },
             "require": {
@@ -806,7 +859,7 @@
             "description": "Defines an object-oriented layer for the HTTP specification",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/http-foundation/tree/v7.4.3"
+                "source": "https://github.com/symfony/http-foundation/tree/v7.4.4"
             },
             "funding": [
                 {
@@ -826,7 +879,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-12-23T14:23:49+00:00"
+            "time": "2026-01-09T12:14:21+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -915,19 +968,20 @@
         },
         {
             "name": "thefrosty/wp-utilities",
-            "version": "v3.9.1",
+            "version": "v3.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thefrosty/wp-utilities.git",
-                "reference": "8a687cada4ba23b444b77fc4d08894bfa9bb83d9"
+                "reference": "108057e3b25e94a1c4180b3ddadc62e689b4fe10"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thefrosty/wp-utilities/zipball/8a687cada4ba23b444b77fc4d08894bfa9bb83d9",
-                "reference": "8a687cada4ba23b444b77fc4d08894bfa9bb83d9",
+                "url": "https://api.github.com/repos/thefrosty/wp-utilities/zipball/108057e3b25e94a1c4180b3ddadc62e689b4fe10",
+                "reference": "108057e3b25e94a1c4180b3ddadc62e689b4fe10",
                 "shasum": ""
             },
             "require": {
+                "blakvghost/php-validator": "^2.3",
                 "ext-json": "*",
                 "ext-openssl": "*",
                 "jjgrainger/posttypes": "^2.2",
@@ -982,9 +1036,9 @@
             "description": "A library containing my standard development resources",
             "support": {
                 "issues": "https://github.com/thefrosty/wp-utilities/issues",
-                "source": "https://github.com/thefrosty/wp-utilities/tree/v3.9.1"
+                "source": "https://github.com/thefrosty/wp-utilities/tree/v3.10.0"
             },
-            "time": "2026-01-04T16:25:55+00:00"
+            "time": "2026-01-23T22:07:17+00:00"
         }
     ],
     "packages-dev": [
